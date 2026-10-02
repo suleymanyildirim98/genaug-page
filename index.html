@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="GenAug: a project page preview for a representation-conditioned image-degradation generation method.">
+    <title>GenAug — Project Page Preview</title>
+    <link rel="stylesheet" href="assets/site.css">
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">RESEARCH PROJECT PREVIEW</p>
+        <h1>GenAug</h1>
+        <p class="subtitle">Representation-conditioned generation for realistic image degradation</p>
+        <p class="authors">Author names · Institution · Conference submission</p>
+        <div class="actions">
+          <a class="button primary" href="#abstract">Abstract</a>
+          <a class="button" href="#results">Results</a>
+          <a class="button disabled" aria-disabled="true">Paper · coming soon</a>
+          <a class="button disabled" aria-disabled="true">Models · coming soon</a>
+        </div>
+        <p class="preview-note">This page contains placeholders while the research is under review. Replace them with approved paper material before the final release.</p>
+      </section>
+
+      <section class="teaser" aria-label="Method overview">
+        <div class="teaser-copy">
+          <p class="section-label">Method overview</p>
+          <h2>Separate content from degradation, then generate realistic paired data.</h2>
+          <p>GenAug conditions a generative model on an observed low-resolution degradation signal while preserving the content supplied by a high-resolution image. The final diagram and wording should be replaced with paper-approved material.</p>
+        </div>
+        <div class="pipeline" role="img" aria-label="High-resolution content and low-resolution condition enter GenAug and produce a generated low-resolution image">
+          <div class="node hr"><span>HR</span><small>content image</small></div>
+          <div class="plus">+</div>
+          <div class="node lr"><span>LR</span><small>degradation condition</small></div>
+          <div class="arrow">→</div>
+          <div class="model">GenAug<br><small>generator</small></div>
+          <div class="arrow">→</div>
+          <div class="node output"><span>LR</span><small>generated image</small></div>
+        </div>
+      </section>
+
+      <section id="abstract" class="content-section abstract">
+        <p class="section-label">Abstract</p>
+        <h2>Paper-approved abstract goes here.</h2>
+        <p>Use this preview space to refine the narrative with advisors. Before public release, replace this paragraph with the final abstract and add links to the camera-ready paper, code, checkpoints, and citation.</p>
+      </section>
+
+      <section id="results" class="content-section">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Results</p>
+            <h2>Qualitative comparisons</h2>
+          </div>
+          <p>Replace these cards with reviewed crops from a fixed evaluation manifest.</p>
+        </div>
+        <div class="gallery">
+          <figure class="sample sample-one"><div class="image-placeholder">content<br>reference</div><figcaption>High-resolution content</figcaption></figure>
+          <figure class="sample sample-two"><div class="image-placeholder">observed<br>condition</div><figcaption>Low-resolution condition</figcaption></figure>
+          <figure class="sample sample-three"><div class="image-placeholder">GenAug<br>output</div><figcaption>Generated degradation</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="content-section benchmark">
+        <p class="section-label">Benchmark</p>
+        <h2>Reproducible evaluation</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Method</th><th>FID ↓</th><th>KID ↓</th><th>LPIPS ↓</th><th>DISTS ↓</th></tr></thead>
+            <tbody><tr><td>GenAug</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+          </table>
+        </div>
+        <p class="caption">Populate this table only from the versioned benchmark report produced by <code>scripts/eval_benchmark.sh</code>.</p>
+      </section>
+
+      <section class="content-section resources">
+        <p class="section-label">Resources</p>
+        <div class="resource-grid">
+          <span class="resource-disabled"><strong>Code</strong><span>Private during active research</span></span>
+          <span class="resource-disabled"><strong>Reproducibility</strong><span>Release materials coming soon</span></span>
+          <span class="resource-disabled"><strong>Paper</strong><span>Add after paper release</span></span>
+          <span class="resource-disabled"><strong>Models</strong><span>Add verified checkpoint links</span></span>
+        </div>
+      </section>
+    </main>
+    <footer>GenAug · research preview · update title, authors, figures, metrics, and links before the final release.</footer>
+  </body>
+</html>
