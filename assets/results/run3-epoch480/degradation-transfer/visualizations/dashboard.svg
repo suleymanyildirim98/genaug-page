@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560">
+<style>text { font-family: Arial, sans-serif; fill: #172033; } .title { font-size: 25px; font-weight: 700; } .label { font-size: 15px; } .small { font-size: 13px; fill: #4b5563; } .value { font-size: 14px; font-weight: 600; }</style>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="40" y="42" class="title">Degradation-transfer evaluation dashboard</text>
+<text x="40" y="82" class="small">Blue = low condition · red = high condition · gray = zero-embedding control</text>
+<rect x="40" y="110" width="440" height="150" rx="10" fill="#eff6ff"/><text x="65" y="145" class="label">Condition accuracy</text>
+<text x="65" y="185" class="value">Low: 100%</text><text x="65" y="220" class="value">High: 0%</text>
+<rect x="520" y="110" width="440" height="150" rx="10" fill="#fef2f2"/><text x="545" y="145" class="label">Generated low ↔ high deresnet separation</text>
+<text x="545" y="190" class="value">0.07380</text><text x="545" y="220" class="small">Input condition separation: 0.40157</text>
+<rect x="40" y="300" width="440" height="180" rx="10" fill="#f8fafc"/><text x="65" y="335" class="label">deresnet target distance (lower is better)</text>
+<text x="65" y="375" class="value">Low output → low: 0.03020</text><text x="65" y="415" class="value">High output → high: 0.42830</text>
+<rect x="520" y="300" width="440" height="180" rx="10" fill="#f8fafc"/><text x="545" y="335" class="label">High − low detail change</text>
+<text x="545" y="375" class="value">Gradient: -0.00437</text><text x="545" y="415" class="value">Laplacian: -0.00707</text>
+<text x="40" y="530" class="small">Expected when “high” is blurrier: high accuracy near 100%, positive margins, and negative high−low detail values.</text>
+    </svg>

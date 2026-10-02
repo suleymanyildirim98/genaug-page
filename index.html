@@ -46,18 +46,22 @@
         <p>Use this preview space to refine the narrative with advisors. Before public release, replace this paragraph with the final abstract and add links to the camera-ready paper, code, checkpoints, and citation.</p>
       </section>
 
-      <section id="results" class="content-section">
+      <section id="results" class="content-section experiments">
         <div class="section-heading">
           <div>
-            <p class="section-label">Results</p>
-            <h2>Qualitative comparisons</h2>
+            <p class="section-label">Experiment explorer</p>
+            <h2>Content fidelity and degradation transfer</h2>
           </div>
-          <p>Replace these cards with reviewed crops from a fixed evaluation manifest.</p>
+          <p>Browse the currently selected evaluation runs and checkpoints. These results are research-preview artifacts.</p>
         </div>
-        <div class="gallery">
-          <figure class="sample sample-one"><div class="image-placeholder">content<br>reference</div><figcaption>High-resolution content</figcaption></figure>
-          <figure class="sample sample-two"><div class="image-placeholder">observed<br>condition</div><figcaption>Low-resolution condition</figcaption></figure>
-          <figure class="sample sample-three"><div class="image-placeholder">GenAug<br>output</div><figcaption>Generated degradation</figcaption></figure>
+        <div id="experiment-explorer" class="explorer" aria-live="polite">
+          <div class="explorer-controls">
+            <div><span class="control-label">Run</span><div id="run-controls" class="chip-group"></div></div>
+            <label><span class="control-label">Checkpoint / epoch</span><select id="epoch-select"></select></label>
+            <div><span class="control-label">Evaluation</span><div id="evaluation-controls" class="chip-group"></div></div>
+          </div>
+          <div id="experiment-summary" class="experiment-summary"></div>
+          <div id="experiment-assets" class="experiment-assets"></div>
         </div>
       </section>
 
@@ -84,5 +88,6 @@
       </section>
     </main>
     <footer>GenAug · research preview · update title, authors, figures, metrics, and links before the final release.</footer>
+    <script src="assets/results.js"></script>
   </body>
 </html>

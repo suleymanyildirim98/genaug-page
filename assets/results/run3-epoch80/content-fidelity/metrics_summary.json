@@ -1,0 +1,215 @@
+{
+  "checkpoint": "output/genaug_mage_deresnet_run3",
+  "condition": "real",
+  "num_examples": 32,
+  "samples_per_input": 16,
+  "cross_capture_condition": true,
+  "metrics_by_condition_source": {
+    "cross_capture": {
+      "hr_lowpass_l1": {
+        "mean": 0.04349309316603467,
+        "std_across_examples": 0.012967066638382275
+      },
+      "hr_lowpass_psnr": {
+        "mean": 26.216490983963013,
+        "std_across_examples": 2.6162464047590457
+      },
+      "hr_lowpass_ssim": {
+        "mean": 0.897633608430624,
+        "std_across_examples": 0.07062708563051297
+      },
+      "hr_gradient_cosine": {
+        "mean": 0.9502578750252724,
+        "std_across_examples": 0.04348468419203628
+      },
+      "target_lowpass_l1": {
+        "mean": 0.042431550042238086,
+        "std_across_examples": 0.013040804729681747
+      },
+      "target_lowpass_ssim": {
+        "mean": 0.8931221086531878,
+        "std_across_examples": 0.07666720318882093
+      },
+      "hr_lowpass_l1_std_over_samples": {
+        "mean": 0.013416253088507801,
+        "std_across_examples": 0.006380591739225183
+      },
+      "hr_lowpass_psnr_std_over_samples": {
+        "mean": 2.2419184539467096,
+        "std_across_examples": 0.9683806379323084
+      },
+      "hr_lowpass_ssim_std_over_samples": {
+        "mean": 0.01617861531121889,
+        "std_across_examples": 0.01070992952735875
+      },
+      "hr_gradient_cosine_std_over_samples": {
+        "mean": 0.0107528924872895,
+        "std_across_examples": 0.010100277628437874
+      },
+      "target_lowpass_l1_std_over_samples": {
+        "mean": 0.012746469299599994,
+        "std_across_examples": 0.006926120065682796
+      },
+      "target_lowpass_ssim_std_over_samples": {
+        "mean": 0.016136306101543596,
+        "std_across_examples": 0.010787020810919914
+      },
+      "variance_pixel_l1": {
+        "mean": 0.048930782766547054,
+        "std_across_examples": 0.012534761461716344
+      },
+      "variance_lowpass_l1": {
+        "mean": 0.040239205525722355,
+        "std_across_examples": 0.009554980642444566
+      },
+      "variance_lowpass_gradient_cosine": {
+        "mean": 0.94784333743155,
+        "std_across_examples": 0.04777941096433996
+      },
+      "variance_pixel_std": {
+        "mean": 0.04169366240967065,
+        "std_across_examples": 0.010505702737996213
+      }
+    },
+    "same_capture": {
+      "hr_lowpass_l1": {
+        "mean": 0.04276865144493058,
+        "std_across_examples": 0.014851302752384332
+      },
+      "hr_lowpass_psnr": {
+        "mean": 26.44678556919098,
+        "std_across_examples": 2.92618942037375
+      },
+      "hr_lowpass_ssim": {
+        "mean": 0.8980503994971514,
+        "std_across_examples": 0.07282928291466022
+      },
+      "hr_gradient_cosine": {
+        "mean": 0.9507935177534819,
+        "std_across_examples": 0.04421525417394169
+      },
+      "target_lowpass_l1": {
+        "mean": 0.0421828975668177,
+        "std_across_examples": 0.014442066848971863
+      },
+      "target_lowpass_ssim": {
+        "mean": 0.894810838624835,
+        "std_across_examples": 0.0791312007768349
+      },
+      "hr_lowpass_l1_std_over_samples": {
+        "mean": 0.012612608537892811,
+        "std_across_examples": 0.007118049887838998
+      },
+      "hr_lowpass_psnr_std_over_samples": {
+        "mean": 2.157893016934395,
+        "std_across_examples": 1.1382446447803485
+      },
+      "hr_lowpass_ssim_std_over_samples": {
+        "mean": 0.013948570333013777,
+        "std_across_examples": 0.007579823463025356
+      },
+      "hr_gradient_cosine_std_over_samples": {
+        "mean": 0.008266305512734107,
+        "std_across_examples": 0.005809548937139552
+      },
+      "target_lowpass_l1_std_over_samples": {
+        "mean": 0.01229336233518552,
+        "std_across_examples": 0.007370204773758738
+      },
+      "target_lowpass_ssim_std_over_samples": {
+        "mean": 0.013906837688409723,
+        "std_across_examples": 0.008310589933575153
+      },
+      "variance_pixel_l1": {
+        "mean": 0.04824818595079705,
+        "std_across_examples": 0.012604080544926217
+      },
+      "variance_lowpass_l1": {
+        "mean": 0.03994944615988061,
+        "std_across_examples": 0.008780098931807947
+      },
+      "variance_lowpass_gradient_cosine": {
+        "mean": 0.950235215947032,
+        "std_across_examples": 0.04867618145016979
+      },
+      "variance_pixel_std": {
+        "mean": 0.04092587938066572,
+        "std_across_examples": 0.010644500017587244
+      }
+    }
+  },
+  "cross_capture_minus_same_capture": {
+    "hr_lowpass_l1": {
+      "mean_cross_minus_same": 0.0007244417211040854,
+      "std_across_examples": 0.007528379977749716
+    },
+    "hr_lowpass_psnr": {
+      "mean_cross_minus_same": -0.2302945852279663,
+      "std_across_examples": 1.1137271152966512
+    },
+    "hr_lowpass_ssim": {
+      "mean_cross_minus_same": -0.00041679106652736664,
+      "std_across_examples": 0.008900081779186707
+    },
+    "hr_gradient_cosine": {
+      "mean_cross_minus_same": -0.0005356427282094955,
+      "std_across_examples": 0.00527064359551637
+    },
+    "target_lowpass_l1": {
+      "mean_cross_minus_same": 0.0002486524754203856,
+      "std_across_examples": 0.007938511596316446
+    },
+    "target_lowpass_ssim": {
+      "mean_cross_minus_same": -0.0016887299716472626,
+      "std_across_examples": 0.008706060571166194
+    },
+    "hr_lowpass_l1_std_over_samples": {
+      "mean_cross_minus_same": 0.0008036445506149903,
+      "std_across_examples": 0.003804814219055442
+    },
+    "hr_lowpass_psnr_std_over_samples": {
+      "mean_cross_minus_same": 0.0840254370123148,
+      "std_across_examples": 0.558049579651795
+    },
+    "hr_lowpass_ssim_std_over_samples": {
+      "mean_cross_minus_same": 0.0022300449782051146,
+      "std_across_examples": 0.007536204386203124
+    },
+    "hr_gradient_cosine_std_over_samples": {
+      "mean_cross_minus_same": 0.0024865869745553937,
+      "std_across_examples": 0.007582706504974238
+    },
+    "target_lowpass_l1_std_over_samples": {
+      "mean_cross_minus_same": 0.0004531069644144736,
+      "std_across_examples": 0.0035843833959726505
+    },
+    "target_lowpass_ssim_std_over_samples": {
+      "mean_cross_minus_same": 0.0022294684131338727,
+      "std_across_examples": 0.007444770138425586
+    },
+    "variance_pixel_l1": {
+      "mean_cross_minus_same": 0.0006825968157500029,
+      "std_across_examples": 0.004863381932225895
+    },
+    "variance_lowpass_l1": {
+      "mean_cross_minus_same": 0.00028975936584174633,
+      "std_across_examples": 0.004487993219324594
+    },
+    "variance_lowpass_gradient_cosine": {
+      "mean_cross_minus_same": -0.002391878515481949,
+      "std_across_examples": 0.007743622675157949
+    },
+    "variance_pixel_std": {
+      "mean_cross_minus_same": 0.0007677830290049314,
+      "std_across_examples": 0.004493545437892269
+    }
+  },
+  "metric_notes": {
+    "hr_lowpass_*": "Low-frequency alignment of generated LR to bicubic-downsampled HR-A; primary content-fidelity measures.",
+    "hr_gradient_cosine": "Low-pass Sobel edge-direction alignment to HR-A; higher is better.",
+    "target_lowpass_*": "Alignment to paired LR-A; stricter but affected by the requested degradation domain.",
+    "variance_*": "Within-input variation over seeded samples; lower lowpass L1 / pixel std and higher gradient cosine mean more stable low-level content.",
+    "same_capture": "LR-B is a non-overlapping crop from the same paired source capture as HR-A.",
+    "cross_capture": "LR-B comes from a different paired source capture; HR-A and the target LR-A remain unchanged."
+  }
+}
