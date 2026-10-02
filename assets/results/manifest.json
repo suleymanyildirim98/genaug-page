@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-10-02T10:28:10+00:00",
+  "runs": {
+    "run3": {
+      "480": {
+        "content-fidelity": {
+          "visualizations": []
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "60": {
+        "content-fidelity": {
+          "visualizations": []
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "80": {
+        "content-fidelity": {
+          "visualizations": []
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "800": {
+        "content-fidelity": {
+          "visualizations": []
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      }
+    },
+    "run4": {
+      "200": {
+        "content-fidelity": {
+          "visualizations": [
+            "dashboard.svg",
+            "sample_grid.svg"
+          ]
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "300": {
+        "content-fidelity": {
+          "visualizations": [
+            "dashboard.svg",
+            "sample_grid.svg"
+          ]
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "400": {
+        "content-fidelity": {
+          "visualizations": [
+            "dashboard.svg",
+            "sample_grid.svg"
+          ]
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      }
+    },
+    "run5": {
+      "200": {
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "300": {
+        "content-fidelity": {
+          "visualizations": [
+            "dashboard.svg",
+            "sample_grid.svg"
+          ]
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "400": {
+        "content-fidelity": {
+          "visualizations": [
+            "dashboard.svg",
+            "sample_grid.svg"
+          ]
+        },
+        "degradation-transfer": {
+          "visualizations": [
+            "condition_accuracy.svg",
+            "dashboard.svg",
+            "degradation_distances.svg",
+            "degradation_margins.svg",
+            "generated_pairs_grid.svg",
+            "gradient_energy.svg",
+            "laplacian_variance.svg"
+          ]
+        }
+      },
+      "800": {
+        "degradation-transfer": {
+          "visualizations": [
+            "dashboard.svg",
+            "generated_pairs_grid.svg"
+          ]
+        }
+      }
+    }
+  }
+}

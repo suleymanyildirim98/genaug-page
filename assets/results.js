@@ -1,22 +1,13 @@
 (() => {
-  const runs = {
-    run3: [60, 80, 480, 800],
-    run4: [200, 300, 400],
-    run5: [200, 300, 400, 800],
-  };
-  const hasContentVisuals = new Set(["run4-200", "run4-300", "run4-400", "run5-300", "run5-400"]);
-  const hasContent = new Set(["run3-60", "run3-80", "run3-480", "run3-800", ...hasContentVisuals]);
   const prefix = "assets/results/";
-  const state = { run: "run4", epoch: 400, evaluation: "content" };
+  const state = { run: null, epoch: null, evaluation: null, tab: "metrics" };
   const runControls = document.querySelector("#run-controls");
   const epochSelect = document.querySelector("#epoch-select");
   const evaluationControls = document.querySelector("#evaluation-controls");
   const summary = document.querySelector("#experiment-summary");
   const assets = document.querySelector("#experiment-assets");
+  let runs = {};
 
-  const key = () => `${state.run}-${state.epoch}`;
-  const label = () => `${state.run.replace("run", "Run ")} · epoch ${state.epoch}`;
-  const assetRoot = () => `${prefix}${state.run}-epoch${state.epoch}/${state.evaluation === "content" ? "content-fidelity" : "degradation-transfer"}`;
   const button = (text, selected, onClick) => {
     const element = document.createElement("button");
     element.type = "button";
@@ -25,63 +16,123 @@
     element.addEventListener("click", onClick);
     return element;
   };
-  const metric = (name, value) => `<div class="metric"><span>${name}</span><strong>${value}</strong></div>`;
-  const number = (value, digits = 3) => Number(value).toFixed(digits);
+  const number = (value, digits = 4) => Number(value).toFixed(digits);
+  const name = (value) => value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const sortEpochs = (left, right) => left === "last" ? 1 : right === "last" ? -1 : Number(left) - Number(right);
+  const epochText = (epoch) => epoch === "last" ? "Latest checkpoint" : `Epoch ${epoch}`;
+  const runText = (run) => run.replace("run", "Run ");
+  const current = () => runs[state.run][state.epoch];
+  const label = () => `${runText(state.run)} · ${epochText(state.epoch).toLowerCase()}`;
+  const assetRoot = () => `${prefix}${state.run}-epoch${state.epoch}/${state.evaluation}`;
+  const isScalar = (value) => typeof value === "number" || typeof value === "string" || typeof value === "boolean";
+  const scalar = (value) => typeof value === "number" ? number(value) : String(value);
+
+  function scalarRows(value, prefixName = "") {
+    if (isScalar(value)) return [[prefixName || "Value", scalar(value)]];
+    return Object.entries(value).flatMap(([key, child]) => scalarRows(child, prefixName ? `${prefixName} · ${name(key)}` : name(key)));
+  }
+  function scalarTable(title, value) {
+    const rows = scalarRows(value).map(([metricName, metricValue]) => `<tr><td>${metricName}</td><td>${metricValue}</td></tr>`).join("");
+    return `<section class="metric-section"><h3>${title}</h3><div class="metric-table-wrap"><table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+  }
+  function statisticsTable(title, metrics) {
+    const columns = [...new Set(Object.values(metrics).flatMap((value) => isScalar(value) ? ["value"] : Object.keys(value)))];
+    const header = columns.map((column) => `<th>${name(column)}</th>`).join("");
+    const rows = Object.entries(metrics).map(([metricName, values]) => {
+      const record = isScalar(values) ? { value: values } : values;
+      return `<tr><td>${name(metricName)}</td>${columns.map((column) => `<td>${record[column] === undefined ? "—" : scalar(record[column])}</td>`).join("")}</tr>`;
+    }).join("");
+    return `<section class="metric-section"><h3>${title}</h3><div class="metric-table-wrap"><table><thead><tr><th>Metric</th>${header}</tr></thead><tbody>${rows}</tbody></table></div></section>`;
+  }
+  function contentMetrics(report) {
+    const sources = report.metrics_by_condition_source;
+    return `<div class="metric-layout">${statisticsTable("Cross-capture condition", sources.cross_capture)}${statisticsTable("Same-capture condition", sources.same_capture)}${statisticsTable("Cross-capture − same-capture", report.cross_capture_minus_same_capture)}</div>`;
+  }
+  function transferMetrics(report) {
+    return `<div class="metric-layout">${scalarTable("Reference conditions", { degradation_distance_low_vs_high: report.reference_degradation_distance_low_vs_high, detail: report.reference_condition_detail })}${statisticsTable("Low degradation condition", report.conditions.low)}${statisticsTable("High degradation condition", report.conditions.high)}${statisticsTable("Null-condition control", report.conditions.null)}${statisticsTable("Paired high − low", report.paired_high_minus_low)}</div>`;
+  }
+  function visuals(root, visualizations) {
+    const image = state.evaluation === "content-fidelity" ? "sample_grid.svg" : "generated_pairs_grid.svg";
+    const caption = state.evaluation === "content-fidelity" ? "Content-fidelity sample grid" : "Generated pairs under low and high degradation conditions";
+    if (!visualizations.includes(image)) return `<p class="asset-note">This evaluation has a numeric summary but no saved qualitative grid.</p>`;
+    return `<figure class="result-figure qualitative"><img src="${root}/visualizations/${image}" alt="${caption} for ${label()}"><figcaption>${caption}</figcaption></figure>`;
+  }
+  function renderTabs() {
+    return `<div class="result-tabs"><button class="result-tab ${state.tab === "metrics" ? "active" : ""}" type="button" data-tab="metrics">Metrics</button><button class="result-tab ${state.tab === "visuals" ? "active" : ""}" type="button" data-tab="visuals">Visuals</button></div>`;
+  }
+  function bindTabs() {
+    summary.querySelectorAll("[data-tab]").forEach((tab) => tab.addEventListener("click", () => {
+      state.tab = tab.dataset.tab;
+      renderResult();
+    }));
+  }
 
   async function renderResult() {
     const root = assetRoot();
-    summary.innerHTML = `<p class="result-kicker">${label()} · ${state.evaluation === "content" ? "Content fidelity" : "Degradation transfer"}</p><p class="loading">Loading summary…</p>`;
+    const viewName = state.evaluation === "content-fidelity" ? "Content fidelity" : "Degradation transfer";
+    summary.innerHTML = `<p class="result-kicker">${label()} · ${viewName}</p><p class="loading">Loading summary…</p>`;
     assets.innerHTML = "";
     try {
       const report = await fetch(`${root}/metrics_summary.json`).then((response) => {
         if (!response.ok) throw new Error("The selected summary is unavailable.");
         return response.json();
       });
-      if (state.evaluation === "content") {
-        const metrics = report.metrics_by_condition_source.cross_capture;
-        summary.innerHTML = `<p class="result-kicker">${label()} · Content fidelity · ${report.num_examples} examples × ${report.samples_per_input} samples</p><div class="metrics">${metric("HR low-pass PSNR", number(metrics.hr_lowpass_psnr.mean, 2))}${metric("HR low-pass SSIM", number(metrics.hr_lowpass_ssim.mean))}${metric("Gradient cosine", number(metrics.hr_gradient_cosine.mean))}${metric("Pixel diversity", number(metrics.variance_pixel_std.mean))}</div>`;
-        if (hasContentVisuals.has(key())) {
-          assets.innerHTML = `<figure class="result-figure wide"><img src="${root}/visualizations/sample_grid.svg" alt="Content-fidelity samples for ${label()}"><figcaption>Sample grid</figcaption></figure><figure class="result-figure"><img src="${root}/visualizations/dashboard.svg" alt="Content-fidelity metric dashboard for ${label()}"><figcaption>Metric dashboard</figcaption></figure>`;
-        } else {
-          assets.innerHTML = `<p class="asset-note">This evaluation has a summary report but no saved visualizations. Run 3 qualitative exports were not generated in the source experiment.</p>`;
-        }
-      } else {
-        const low = report.conditions.low;
-        const high = report.conditions.high;
-        const paired = report.paired_high_minus_low;
-        summary.innerHTML = `<p class="result-kicker">${label()} · Degradation transfer · ${low.assigned_degradation_distance.count} generated samples per condition</p><div class="metrics">${metric("Low condition accuracy", `${number(low.condition_accuracy * 100, 0)}%`)}${metric("High condition accuracy", `${number(high.condition_accuracy * 100, 0)}%`)}${metric("Low assigned distance", number(low.assigned_degradation_distance.mean))}${metric("High − low distance", number(paired.degradation_distance_between_generated_conditions.mean))}</div>`;
-        assets.innerHTML = `<figure class="result-figure wide"><img src="${root}/visualizations/generated_pairs_grid.svg" alt="Degradation-transfer generations for ${label()}"><figcaption>Generated pairs under low and high degradation conditions</figcaption></figure><figure class="result-figure"><img src="${root}/visualizations/dashboard.svg" alt="Degradation-transfer metric dashboard for ${label()}"><figcaption>Metric dashboard</figcaption></figure>`;
-      }
+      const visualizations = current()[state.evaluation].visualizations;
+      const context = state.evaluation === "content-fidelity"
+        ? `${report.num_examples} examples × ${report.samples_per_input} samples · ${report.condition.replace(/_/g, " ")} condition`
+        : `${report.conditions.low.assigned_degradation_distance.count} generated samples per low/high condition · ${report.degradation_encoder}`;
+      summary.innerHTML = `<p class="result-kicker">${label()} · ${viewName} · ${context}</p>${renderTabs()}`;
+      bindTabs();
+      assets.innerHTML = state.tab === "metrics"
+        ? (state.evaluation === "content-fidelity" ? contentMetrics(report) : transferMetrics(report))
+        : visuals(root, visualizations);
     } catch (error) {
       summary.innerHTML = `<p class="asset-note">${error.message}</p>`;
     }
   }
 
   function renderControls() {
-    runControls.replaceChildren(...Object.keys(runs).map((run) => button(run.replace("run", "Run "), state.run === run, () => {
+    runControls.replaceChildren(...Object.keys(runs).sort().map((run) => button(runText(run), state.run === run, () => {
       state.run = run;
-      state.epoch = runs[run][runs[run].length - 1];
-      state.evaluation = hasContent.has(key()) ? "content" : "transfer";
+      state.epoch = Object.keys(runs[run]).sort(sortEpochs).pop();
+      state.evaluation = Object.keys(current())[0];
+      state.tab = "metrics";
       render();
     })));
-    epochSelect.replaceChildren(...runs[state.run].map((epoch) => {
+    epochSelect.replaceChildren(...Object.keys(runs[state.run]).sort(sortEpochs).map((epoch) => {
       const option = document.createElement("option");
       option.value = epoch;
-      option.textContent = `Epoch ${epoch}`;
+      option.textContent = epochText(epoch);
       option.selected = epoch === state.epoch;
       return option;
     }));
     epochSelect.onchange = () => {
-      state.epoch = Number(epochSelect.value);
-      state.evaluation = hasContent.has(key()) ? "content" : "transfer";
+      state.epoch = epochSelect.value;
+      state.evaluation = Object.keys(current())[0];
+      state.tab = "metrics";
       render();
     };
-    const available = hasContent.has(key()) ? ["content", "transfer"] : ["transfer"];
-    evaluationControls.replaceChildren(...available.map((evaluation) => button(evaluation === "content" ? "Content fidelity" : "Degradation transfer", state.evaluation === evaluation, () => {
+    evaluationControls.replaceChildren(...Object.keys(current()).map((evaluation) => button(evaluation === "content-fidelity" ? "Content fidelity" : "Degradation transfer", state.evaluation === evaluation, () => {
       state.evaluation = evaluation;
+      state.tab = "metrics";
       render();
     })));
   }
   function render() { renderControls(); renderResult(); }
-  render();
+
+  fetch(`${prefix}manifest.json`)
+    .then((response) => {
+      if (!response.ok) throw new Error("Result manifest is unavailable.");
+      return response.json();
+    })
+    .then((manifest) => {
+      runs = manifest.runs;
+      const availableRuns = Object.keys(runs).sort();
+      if (!availableRuns.length) throw new Error("No evaluation results are published yet.");
+      state.run = availableRuns.includes("run5") ? "run5" : availableRuns[availableRuns.length - 1];
+      state.epoch = Object.keys(runs[state.run]).sort(sortEpochs).pop();
+      state.evaluation = Object.keys(current())[0];
+      render();
+    })
+    .catch((error) => { summary.innerHTML = `<p class="asset-note">${error.message}</p>`; });
 })();
