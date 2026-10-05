@@ -44,12 +44,49 @@
     }).join("");
     return `<section class="metric-section"><h3>${title}</h3><div class="metric-table-wrap"><table><thead><tr><th>Metric</th>${header}</tr></thead><tbody>${rows}</tbody></table></div></section>`;
   }
+  function comparisonTable(title, headers, rows, note = "") {
+    return `<section class="comparison-section"><div class="comparison-heading"><h3>${title}</h3>${note ? `<p>${note}</p>` : ""}</div><div class="metric-table-wrap"><table><thead><tr>${headers.map((header) => `<th>${header}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell, index) => `<td${index === 0 ? " class=\"metric-name\"" : ""}>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`;
+  }
+  function detailsPanel(content) {
+    return `<details class="metric-details"><summary>Complete metric details</summary><div class="detail-layout">${content}</div></details>`;
+  }
   function contentMetrics(report) {
     const sources = report.metrics_by_condition_source;
-    return `<div class="metric-layout">${statisticsTable("Cross-capture condition", sources.cross_capture)}${statisticsTable("Same-capture condition", sources.same_capture)}${statisticsTable("Cross-capture − same-capture", report.cross_capture_minus_same_capture)}</div>`;
+    const delta = report.cross_capture_minus_same_capture;
+    const metrics = ["hr_lowpass_l1", "hr_lowpass_psnr", "hr_lowpass_ssim", "hr_gradient_cosine", "target_lowpass_l1", "target_lowpass_ssim", "variance_pixel_l1", "variance_pixel_std"];
+    const rows = metrics.map((key) => [
+      name(key),
+      number(sources.cross_capture[key].mean),
+      number(sources.same_capture[key].mean),
+      number(delta[key].mean_cross_minus_same),
+    ]);
+    return `${comparisonTable("Content preservation comparison", ["Metric", "Cross capture", "Same capture", "Cross − same"], rows, "Cross-capture values measure whether content remains stable when the degradation condition comes from another capture.")}${detailsPanel(`${statisticsTable("Cross-capture condition", sources.cross_capture)}${statisticsTable("Same-capture condition", sources.same_capture)}${statisticsTable("Cross-capture − same-capture", delta)}`)}`;
   }
   function transferMetrics(report) {
-    return `<div class="metric-layout">${scalarTable("Reference conditions", { degradation_distance_low_vs_high: report.reference_degradation_distance_low_vs_high, detail: report.reference_condition_detail })}${statisticsTable("Low degradation condition", report.conditions.low)}${statisticsTable("High degradation condition", report.conditions.high)}${statisticsTable("Null-condition control", report.conditions.null)}${statisticsTable("Paired high − low", report.paired_high_minus_low)}</div>`;
+    const low = report.conditions.low;
+    const high = report.conditions.high;
+    const reference = report.reference_condition_detail;
+    const targetRows = [["Low", low, reference.low], ["High", high, reference.high]].map(([condition, values, target]) => {
+      const assigned = values.assigned_degradation_distance.mean;
+      const margin = values.degradation_margin_other_minus_assigned.mean;
+      return [
+        `${condition} target`,
+        number(target.gradient_energy),
+        `${number(values.gradient_energy.mean)} ± ${number(values.gradient_energy.std)}`,
+        number(target.laplacian_variance),
+        `${number(values.laplacian_variance.mean)} ± ${number(values.laplacian_variance.std)}`,
+        number(assigned),
+        number(assigned + margin),
+        number(margin),
+        `${number(values.condition_accuracy * 100, 0)}%`,
+      ];
+    });
+    const separation = report.paired_high_minus_low.degradation_distance_between_generated_conditions;
+    const separationRows = [
+      ["Reference low ↔ high targets", number(report.reference_degradation_distance_low_vs_high), "—"],
+      ["Generated low ↔ high outputs", `${number(separation.mean)} ± ${number(separation.std)}`, separation.count],
+    ];
+    return `${comparisonTable("Embedding alignment with target conditions", ["Requested target", "Target gradient energy", "Generated gradient energy", "Target Laplacian variance", "Generated Laplacian variance", "Distance to assigned target ↓", "Distance to other target", "Other − assigned margin ↑", "Assignment accuracy ↑"], targetRows, "Lower assigned distance and a positive margin indicate that generated degradations embed nearer their requested target than the opposite condition.")}${comparisonTable("Low/high separation", ["Comparison", "Embedding distance", "Samples"], separationRows, "The generated low/high separation can be compared directly with the reference target separation.")}${detailsPanel(`${scalarTable("Reference conditions", { degradation_distance_low_vs_high: report.reference_degradation_distance_low_vs_high, detail: reference })}${statisticsTable("Low degradation condition", low)}${statisticsTable("High degradation condition", high)}${statisticsTable("Null-condition control", report.conditions.null)}${statisticsTable("Paired high − low", report.paired_high_minus_low)}`)}`;
   }
   function visuals(root, visualizations) {
     const image = state.evaluation === "content-fidelity" ? "sample_grid.svg" : "generated_pairs_grid.svg";
