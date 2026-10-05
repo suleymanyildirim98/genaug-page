@@ -19,7 +19,8 @@ fi
 git add -A
 
 if git diff --cached --quiet; then
-  echo "No page changes to publish."
+  echo "No uncommitted page changes; pushing any local commits."
+  git push origin main
   conda deactivate
   exit 0
 fi
