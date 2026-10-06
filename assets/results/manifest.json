@@ -1,5 +1,56 @@
 {
-  "generated_at": "2026-10-02T10:28:10+00:00",
+  "generated_at": "2026-10-06T18:06:46+00:00",
+  "run_descriptions": {
+    "run3": {
+      "purpose": "Establish the behavior of the standard masking recipe with BSRGAN+ degradation training before adding full-mask and mixed-degradation augmentation.",
+      "recipe": [
+        [
+          "Masking",
+          "Ratio sampled from 0.50 to 1.00 (mean 0.75)"
+        ],
+        [
+          "Synthetic degradation",
+          "BSRGAN+ pipeline"
+        ],
+        [
+          "Full-mask training",
+          "Not enabled in the saved configuration"
+        ]
+      ],
+      "summary": "The original GenAug training run, using the BSRGAN+ synthetic-degradation pipeline as the baseline for the first content-fidelity and degradation-transfer snapshots.",
+      "title": "Baseline training recipe"
+    },
+    "run4": {
+      "purpose": "Test whether broader degradation exposure yields clearer condition control without compromising content preservation.",
+      "recipe": [
+        [
+          "Full-mask probability",
+          "25%"
+        ],
+        [
+          "Synthetic degradations",
+          "BSRGAN-Light 25% \u00b7 BSRGAN 35% \u00b7 BSRGAN+ 40%"
+        ]
+      ],
+      "summary": "Adds full-mask training and synthetic degradation augmentation while preserving the shared model and optimization recipe.",
+      "title": "Mixed-degradation + full-mask recipe"
+    },
+    "run5": {
+      "purpose": "Check whether the observed trends hold across another run of the mixed-degradation and full-mask configuration.",
+      "recipe": [
+        [
+          "Full-mask probability",
+          "25%"
+        ],
+        [
+          "Synthetic degradations",
+          "BSRGAN-Light 25% \u00b7 BSRGAN 35% \u00b7 BSRGAN+ 40%"
+        ]
+      ],
+      "summary": "A separate training run with the same saved recipe as Run 4, retained to compare checkpoint behavior under the mixed-degradation setup.",
+      "title": "Repeat mixed-degradation + full-mask recipe"
+    }
+  },
   "runs": {
     "run3": {
       "480": {
@@ -142,5 +193,23 @@
         }
       }
     }
-  }
+  },
+  "shared_training_recipe": [
+    [
+      "Generator",
+      "MAGE ViT-Base / 16"
+    ],
+    [
+      "Degradation encoder",
+      "MoCo v3 ViT-Base \u00b7 256-D representation"
+    ],
+    [
+      "Training data",
+      "DRealSR \u00d74"
+    ],
+    [
+      "Schedule",
+      "1,500 planned epochs \u00b7 batch size 32"
+    ]
+  ]
 }

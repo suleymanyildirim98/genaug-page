@@ -15,6 +15,47 @@ QUALITATIVE_VISUALIZATION = {
     "degradation-transfer": "generated_pairs_grid.svg",
 }
 
+# Curated, public-facing context for the runs currently shown on the project
+# page.  Keep this concise: the page is an experiment navigator, not a dump of
+# absolute paths, cluster settings, or tracking identifiers from args.json.
+RUN_DESCRIPTIONS = {
+    "run3": {
+        "title": "Baseline training recipe",
+        "summary": "The original GenAug training run, using the BSRGAN+ synthetic-degradation pipeline as the baseline for the first content-fidelity and degradation-transfer snapshots.",
+        "purpose": "Establish the behavior of the standard masking recipe with BSRGAN+ degradation training before adding full-mask and mixed-degradation augmentation.",
+        "recipe": [
+            ["Masking", "Ratio sampled from 0.50 to 1.00 (mean 0.75)"],
+            ["Synthetic degradation", "BSRGAN+ pipeline"],
+            ["Full-mask training", "Not enabled in the saved configuration"],
+        ],
+    },
+    "run4": {
+        "title": "Mixed-degradation + full-mask recipe",
+        "summary": "Adds full-mask training and synthetic degradation augmentation while preserving the shared model and optimization recipe.",
+        "purpose": "Test whether broader degradation exposure yields clearer condition control without compromising content preservation.",
+        "recipe": [
+            ["Full-mask probability", "25%"],
+            ["Synthetic degradations", "BSRGAN-Light 25% · BSRGAN 35% · BSRGAN+ 40%"],
+        ],
+    },
+    "run5": {
+        "title": "Repeat mixed-degradation + full-mask recipe",
+        "summary": "A separate training run with the same saved recipe as Run 4, retained to compare checkpoint behavior under the mixed-degradation setup.",
+        "purpose": "Check whether the observed trends hold across another run of the mixed-degradation and full-mask configuration.",
+        "recipe": [
+            ["Full-mask probability", "25%"],
+            ["Synthetic degradations", "BSRGAN-Light 25% · BSRGAN 35% · BSRGAN+ 40%"],
+        ],
+    },
+}
+
+SHARED_TRAINING_RECIPE = [
+    ["Generator", "MAGE ViT-Base / 16"],
+    ["Degradation encoder", "MoCo v3 ViT-Base · 256-D representation"],
+    ["Training data", "DRealSR ×4"],
+    ["Schedule", "1,500 planned epochs · batch size 32"],
+]
+
 
 def parse_run_name(name):
     match = re.search(r"run(\d+)", name)
@@ -70,6 +111,8 @@ def build_manifest(results_root):
             runs.setdefault(run, {})[epoch] = evaluations
     return {
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "run_descriptions": RUN_DESCRIPTIONS,
+        "shared_training_recipe": SHARED_TRAINING_RECIPE,
         "runs": runs,
     }
 
