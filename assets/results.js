@@ -9,6 +9,7 @@
   let runs = {};
   let runDescriptions = {};
   let sharedTrainingRecipe = [];
+  let experimentRecords = {};
 
   const button = (text, selected, onClick) => {
     const element = document.createElement("button");
@@ -57,7 +58,9 @@
     if (!description) return "";
     const recipe = description.recipe.map(([key, value]) => `<div class="recipe-item"><dt>${key}</dt><dd>${value}</dd></div>`).join("");
     const shared = sharedTrainingRecipe.map(([key, value]) => `<div class="recipe-item"><dt>${key}</dt><dd>${value}</dd></div>`).join("");
-    return `<section class="experiment-card"><div class="experiment-card-heading"><div><p class="card-eyebrow">Experiment description</p><h3>${description.title}</h3></div><p>${description.summary}</p></div><div class="experiment-purpose"><span>Why this run?</span><p>${description.purpose}</p></div><div class="recipe-columns"><div><h4>Run-specific settings</h4><dl class="recipe-list">${recipe}</dl></div><div><h4>Shared training protocol</h4><dl class="recipe-list">${shared}</dl></div></div></section>`;
+    const record = experimentRecords[state.run];
+    const fullRecord = record ? `<details class="experiment-record"><summary>Full experiment record</summary>${record.map((section) => `<section><h4>${section.title}</h4>${section.paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join("")}${section.bullets.length ? `<ul>${section.bullets.map((bullet) => `<li>${bullet}</li>`).join("")}</ul>` : ""}</section>`).join("")}</details>` : "";
+    return `<section class="experiment-card"><div class="experiment-card-heading"><div><p class="card-eyebrow">Experiment description</p><h3>${description.title}</h3></div><p>${description.summary}</p></div><div class="experiment-purpose"><span>Why this run?</span><p>${description.purpose}</p></div><div class="recipe-columns"><div><h4>Run-specific settings</h4><dl class="recipe-list">${recipe}</dl></div><div><h4>Shared training protocol</h4><dl class="recipe-list">${shared}</dl></div></div>${fullRecord}</section>`;
   }
   function contentMetrics(report) {
     const sources = report.metrics_by_condition_source;
@@ -175,6 +178,7 @@
       runs = manifest.runs;
       runDescriptions = manifest.run_descriptions || {};
       sharedTrainingRecipe = manifest.shared_training_recipe || [];
+      experimentRecords = manifest.experiment_records || {};
       const availableRuns = Object.keys(runs).sort();
       if (!availableRuns.length) throw new Error("No evaluation results are published yet.");
       state.run = availableRuns.includes("run5") ? "run5" : availableRuns[availableRuns.length - 1];
