@@ -203,9 +203,61 @@
         ],
         "title": "Optimisation"
       }
+    ],
+    "run7": [
+      {
+        "bullets": [],
+        "paragraphs": [
+          "Run7: Run4 A-absolute/A-rank baseline with mixed synthetic recipes and 25% full-mask batches; add a low-weight paired real-to-synthetic degradation-change direction loss based on condition B."
+        ],
+        "title": "Purpose"
+      },
+      {
+        "bullets": [
+          "Generator: mage_vit_base_patch16 MAGE token generator with frozen VQGAN codec.",
+          "Content condition: frozen mocov3_vit_base encoding of HR-A.",
+          "Degradation condition: frozen DeResNet encoding of non-overlapping LR-B, followed by the trainable degradation projector and AdaLN conditioning.",
+          "Source tokens: LR-A tokens, masked with a truncated-normal ratio in [0.50, 1.00]; 25% of batches are fully masked."
+        ],
+        "paragraphs": [],
+        "title": "Model and conditioning"
+      },
+      {
+        "bullets": [
+          "Dataset: DRealSR \u00d74 training data",
+          "Each branch uses matched source A and degradation-condition B crops. Real and synthetic branches are trained together.",
+          "Synthetic recipe mixture: BSRGAN-Light=25%, BSRGAN=35%, BSRGAN+=40%."
+        ],
+        "paragraphs": [],
+        "title": "Training data"
+      },
+      {
+        "bullets": [
+          "Masked token cross-entropy: scale 1.0.",
+          "Wavelet reconstruction of the fully predicted LR image: scale 0.06.",
+          "Degradation loss: scale 10.0.",
+          "Absolute target: source LR-A DeResNet embedding.",
+          "Rank target: source LR-A against the opposite-domain LR-A anchor.",
+          "Adaptive rank margin: min(0.10, 0.5 * anchor separation); rank weight: 0.25.",
+          "Paired degradation-change direction loss: weight 0.01; aligns the generated real-to-synthetic degradation change with the corresponding LR-B condition change."
+        ],
+        "paragraphs": [],
+        "title": "Objective"
+      },
+      {
+        "bullets": [
+          "Per-GPU batch size: 32; gradient accumulation: 1; distributed world size: 6.",
+          "Base learning rate: 0.00015; warm-up: 10 epochs; weight decay: 0.05; gradient clip: 3.",
+          "Sampling configuration for previews/evaluation: temperature 6, 20 iterations."
+        ],
+        "paragraphs": [
+          "The complete machine-readable invocation is in args.json; per-epoch metrics are in log.txt."
+        ],
+        "title": "Optimisation"
+      }
     ]
   },
-  "generated_at": "2026-10-08T19:18:51+00:00",
+  "generated_at": "2026-10-12T14:09:55+00:00",
   "run_descriptions": {
     "run3": {
       "purpose": "Establish the behavior of the standard masking recipe with BSRGAN+ degradation training before adding full-mask and mixed-degradation augmentation.",
@@ -282,6 +334,29 @@
       ],
       "summary": "Combines mixed synthetic degradations and full-mask batches with source-A absolute matching and condition-B rank supervision.",
       "title": "Source-A absolute / condition-B ranking"
+    },
+    "run7": {
+      "purpose": "Test whether explicitly supervising the direction of degradation change improves controllable transfer while preserving the established baseline objectives.",
+      "recipe": [
+        [
+          "Full-mask probability",
+          "25%"
+        ],
+        [
+          "Synthetic degradations",
+          "BSRGAN-Light 25% \u00b7 BSRGAN 35% \u00b7 BSRGAN+ 40%"
+        ],
+        [
+          "Absolute / rank targets",
+          "Source LR-A embedding / opposite-domain LR-A anchor"
+        ],
+        [
+          "Direction loss",
+          "Paired real-to-synthetic change \u00b7 weight 0.01"
+        ]
+      ],
+      "summary": "Builds on the Run 4 source-A absolute/rank baseline by adding a low-weight loss that aligns real-to-synthetic degradation changes with the condition-B direction.",
+      "title": "Paired degradation-change direction ablation"
     }
   },
   "runs": {
@@ -449,6 +524,36 @@
         }
       },
       "500": {
+        "degradation-transfer": {
+          "visualizations": [
+            "generated_pairs_grid.svg"
+          ]
+        }
+      }
+    },
+    "run7": {
+      "100": {
+        "degradation-transfer": {
+          "visualizations": [
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "200": {
+        "degradation-transfer": {
+          "visualizations": [
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "400": {
+        "degradation-transfer": {
+          "visualizations": [
+            "generated_pairs_grid.svg"
+          ]
+        }
+      },
+      "last": {
         "degradation-transfer": {
           "visualizations": [
             "generated_pairs_grid.svg"

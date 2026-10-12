@@ -59,6 +59,17 @@ RUN_DESCRIPTIONS = {
             ["Rank target", "Condition LR-B vs. opposite-domain LR-B anchor"],
         ],
     },
+    "run7": {
+        "title": "Paired degradation-change direction ablation",
+        "summary": "Builds on the Run 4 source-A absolute/rank baseline by adding a low-weight loss that aligns real-to-synthetic degradation changes with the condition-B direction.",
+        "purpose": "Test whether explicitly supervising the direction of degradation change improves controllable transfer while preserving the established baseline objectives.",
+        "recipe": [
+            ["Full-mask probability", "25%"],
+            ["Synthetic degradations", "BSRGAN-Light 25% · BSRGAN 35% · BSRGAN+ 40%"],
+            ["Absolute / rank targets", "Source LR-A embedding / opposite-domain LR-A anchor"],
+            ["Direction loss", "Paired real-to-synthetic change · weight 0.01"],
+        ],
+    },
 }
 
 SHARED_TRAINING_RECIPE = [

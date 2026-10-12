@@ -1,0 +1,91 @@
+{
+  "degradation_encoder": "deresnet",
+  "reference_degradation_distance_low_vs_high": 0.40157097578048706,
+  "reference_condition_detail": {
+    "low": {
+      "gradient_energy": 0.007126182783395052,
+      "laplacian_variance": 0.010582535527646542
+    },
+    "high": {
+      "gradient_energy": 0.0007853448623791337,
+      "laplacian_variance": 0.001029574777930975
+    }
+  },
+  "conditions": {
+    "low": {
+      "gradient_energy": {
+        "mean": 0.009054200258105993,
+        "std": 0.0010173086441030033,
+        "count": 16
+      },
+      "laplacian_variance": {
+        "mean": 0.012320526700932533,
+        "std": 0.0015869563915240218,
+        "count": 16
+      },
+      "assigned_degradation_distance": {
+        "mean": 0.018493708223104477,
+        "std": 0.009560044825740516,
+        "count": 16
+      },
+      "degradation_margin_other_minus_assigned": {
+        "mean": 0.5228876918554306,
+        "std": 0.03632449398146653,
+        "count": 16
+      },
+      "condition_accuracy": 1.0
+    },
+    "high": {
+      "gradient_energy": {
+        "mean": 0.004253197112120688,
+        "std": 0.0005219440701409192,
+        "count": 16
+      },
+      "laplacian_variance": {
+        "mean": 0.004220530085149221,
+        "std": 0.0006016556276036811,
+        "count": 16
+      },
+      "assigned_degradation_distance": {
+        "mean": 0.31422707065939903,
+        "std": 0.04211197289685717,
+        "count": 16
+      },
+      "degradation_margin_other_minus_assigned": {
+        "mean": -0.20393838360905647,
+        "std": 0.06423824163172204,
+        "count": 16
+      },
+      "condition_accuracy": 0.0
+    },
+    "null": {
+      "gradient_energy": {
+        "mean": 0.0054090049234218895,
+        "std": 0.0011038454208215467,
+        "count": 16
+      },
+      "laplacian_variance": {
+        "mean": 0.006012444864609279,
+        "std": 0.0014291141923977067,
+        "count": 16
+      }
+    }
+  },
+  "paired_high_minus_low": {
+    "degradation_distance_between_generated_conditions": {
+      "mean": 0.14135921746492386,
+      "std": 0.048963545938348375,
+      "count": 16
+    },
+    "gradient_energy": {
+      "mean": -0.004801003145985305,
+      "std": 0.0010750831662010986,
+      "count": 16
+    },
+    "laplacian_variance": {
+      "mean": -0.008099996615783311,
+      "std": 0.0016067084323342976,
+      "count": 16
+    }
+  }
+}
