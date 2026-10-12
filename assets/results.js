@@ -169,7 +169,9 @@
   }
   function render() { renderControls(); renderResult(); }
 
-  fetch(`${prefix}manifest.json`)
+  // Results are updated independently of this JavaScript bundle.  Bypass the
+  // browser/CDN response cache so a newly published run appears immediately.
+  fetch(`${prefix}manifest.json?updated=${Date.now()}`, { cache: "no-store" })
     .then((response) => {
       if (!response.ok) throw new Error("Result manifest is unavailable.");
       return response.json();
