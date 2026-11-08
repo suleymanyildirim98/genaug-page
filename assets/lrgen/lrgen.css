@@ -1,0 +1,14 @@
+/* HR->LR experiment log (lrgen.html); builds on site.css. */
+.lrgen-hero { min-height: 0; padding: 72px 9% 56px; }
+.lrgen-nav { margin: 0 0 22px; }
+.lrgen-nav .chip { text-align: left; }
+.lrgen-findings { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.45; }
+.lrgen-findings li { margin-bottom: 6px; }
+.lrgen-verdict { margin: 12px 0 0; padding: 11px 13px; border-radius: 8px; background: #ffffffb3; font-size: 14px; line-height: 1.4; }
+.lrgen-figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; margin-top: 18px; }
+.metric-table-wrap td strong { color: #18352b; background: #d8ff6a88; padding: 1px 4px; border-radius: 4px; }
+footer code { font-family: "DM Mono", monospace; font-size: 12px; }
+@media (max-width: 760px) {
+  .lrgen-hero { padding: 48px 16px 40px; }
+  .comparison-heading { flex-direction: column; }
+}

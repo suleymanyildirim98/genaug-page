@@ -1,0 +1,1003 @@
+{
+ "generated": "2026-11-08",
+ "glossary": [
+  [
+   "LPIPS / DISTS",
+   "perceptual difference between generated and real native LR of the same crop (lower is better)"
+  ],
+  [
+   "FID",
+   "distribution distance of generated vs real native LRs (lower is better; round-trip floor 1.35)"
+  ],
+  [
+   "PSNR",
+   "pixel agreement with the real LR; rewards smooth outputs, not used for selection"
+  ],
+  [
+   "Native",
+   "the 256 px generator output area-downscaled by 4 to the 64 px LR; all numbers here are native"
+  ]
+ ],
+ "experiments": [
+  {
+   "id": "lpips",
+   "date": "2026-11-07",
+   "title": "Which perceptual loss: grid, native or none?",
+   "summary": "The same X5-conditioned generator trained with LPIPS on the 256 px HR grid, with LPIPS on the native 64 px LR, without LPIPS, and with grid LPIPS plus a discriminator.",
+   "purpose": "Grid metrics had rejected native LPIPS, but only the native LR output is used. Losses that act only at native size leave the content inside each 4×4 block free, which grid metrics punish even though it never reaches the LR.",
+   "setup": [
+    [
+     "Data",
+     "DRealSR ×4 only, camera-balanced"
+    ],
+    [
+     "Encoder",
+     "X5 (frozen, 128-d), 128 px native reference"
+    ],
+    [
+     "Base losses",
+     "native low-pass MSE 1.0, native PSD (YCbCr) 0.1"
+    ],
+    [
+     "Steps",
+     "50k, body unfrozen at 10k"
+    ],
+    [
+     "Evaluation",
+     "744 test crops, last checkpoint, native 64 px output"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "Quality on the native 64 px LR (seed 0 / seed 1)",
+     "headers": [
+      "Experiment",
+      "LPIPS ↓",
+      "DISTS ↓",
+      "FID ↓",
+      "PSNR"
+     ],
+     "rows": [
+      [
+       "Grid LPIPS 2.0",
+       "0.0320/0.0343",
+       "0.1055/0.1074",
+       "40.6/38.4",
+       "33.21/33.22"
+      ],
+      [
+       "Native LPIPS 2.0",
+       "<strong>0.0302/0.0314</strong>",
+       "<strong>0.1028/0.1053</strong>",
+       "37.6/37.5",
+       "33.22/33.11"
+      ],
+      [
+       "No LPIPS",
+       "0.0363/0.0367",
+       "0.1206/0.1200",
+       "47.6/46.3",
+       "32.49/32.51"
+      ],
+      [
+       "Grid LPIPS + discriminator 0.02",
+       "0.0316/0.0338",
+       "0.1069/0.1089",
+       "<strong>37.5/37.2</strong>",
+       "32.42/32.42"
+      ]
+     ],
+     "note": "Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. FID differs by up to ~4 points between seeds. PSNR is not used for selection."
+    },
+    {
+     "title": "Realism analysis",
+     "headers": [
+      "Experiment",
+      "Noise",
+      "Detail",
+      "HF power",
+      "Saturation",
+      "Noise slope",
+      "Detail slope",
+      "HF slope",
+      "z_std",
+      "Diversity"
+     ],
+     "rows": [
+      [
+       "Grid LPIPS 2.0",
+       "0.93",
+       "0.94",
+       "1.01",
+       "0.981",
+       "0.81",
+       "0.79",
+       "0.58",
+       "0.36",
+       "0.0051"
+      ],
+      [
+       "Native LPIPS 2.0",
+       "0.93",
+       "0.99",
+       "1.04",
+       "0.963",
+       "0.80",
+       "0.89",
+       "0.57",
+       "0.38",
+       "0.0109"
+      ],
+      [
+       "No LPIPS",
+       "0.96",
+       "1.01",
+       "1.05",
+       "0.949",
+       "<strong>0.87</strong>",
+       "0.77",
+       "<strong>0.64</strong>",
+       "<strong>0.77</strong>",
+       "<strong>0.0442</strong>"
+      ],
+      [
+       "Grid LPIPS + discriminator 0.02",
+       "0.93",
+       "0.97",
+       "0.98",
+       "0.975",
+       "0.80",
+       "<strong>0.96</strong>",
+       "0.63",
+       "0.52",
+       "0.0088"
+      ]
+     ],
+     "note": "Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped through the same measurement reaches only 0.92 / 0.94 / 0.85 / 1.00. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise."
+    }
+   ],
+   "findings": [
+    "Native LPIPS is best on LPIPS and DISTS on both seeds; on FID it ties with the discriminator run (37.5 vs 37.4).",
+    "Removing LPIPS is clearly worse (FID about 47 vs 38), although its outputs vary most with the noise input.",
+    "The discriminator gives the best camera-detail slope and uses the noise input most, at a small PSNR cost."
+   ],
+   "verdict": "Use native LPIPS. Grid metrics were misleading for native-only losses."
+  },
+  {
+   "id": "refsize",
+   "date": "2026-11-07",
+   "title": "Reference size: 64 px vs 128 px (X5)",
+   "summary": "The X5 encoder sees the centre 64 px of the 128 px native reference instead of all of it.",
+   "purpose": "Hand-picked references are small; check how much is lost when the reference is 64 px (256 px of HR area).",
+   "setup": [
+    [
+     "Encoder",
+     "X5, native reference, ref_native_size 64 vs 128"
+    ],
+    [
+     "Losses",
+     "grid LPIPS 2.0, native low-pass MSE, native PSD"
+    ],
+    [
+     "Data",
+     "DRealSR ×4"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "Quality on the native 64 px LR (seed 0 / seed 1)",
+     "headers": [
+      "Experiment",
+      "LPIPS ↓",
+      "DISTS ↓",
+      "FID ↓",
+      "PSNR"
+     ],
+     "rows": [
+      [
+       "128 px reference",
+       "<strong>0.0320/0.0343</strong>",
+       "<strong>0.1055/0.1074</strong>",
+       "<strong>40.6/38.4</strong>",
+       "33.21/33.22"
+      ],
+      [
+       "64 px reference",
+       "0.0342/0.0337",
+       "0.1066/0.1068",
+       "39.7/40.7",
+       "33.45/33.09"
+      ]
+     ],
+     "note": "Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. FID differs by up to ~4 points between seeds. PSNR is not used for selection."
+    },
+    {
+     "title": "Realism analysis",
+     "headers": [
+      "Experiment",
+      "Noise",
+      "Detail",
+      "HF power",
+      "Saturation",
+      "Noise slope",
+      "Detail slope",
+      "HF slope",
+      "z_std",
+      "Diversity"
+     ],
+     "rows": [
+      [
+       "128 px reference",
+       "0.93",
+       "0.94",
+       "1.01",
+       "0.981",
+       "<strong>0.81</strong>",
+       "<strong>0.79</strong>",
+       "<strong>0.58</strong>",
+       "<strong>0.36</strong>",
+       "<strong>0.0051</strong>"
+      ],
+      [
+       "64 px reference",
+       "0.93",
+       "0.95",
+       "1.01",
+       "0.967",
+       "0.77",
+       "0.74",
+       "0.58",
+       "0.35",
+       "0.0049"
+      ]
+     ],
+     "note": "Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped through the same measurement reaches only 0.92 / 0.94 / 0.85 / 1.00. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise."
+    }
+   ],
+   "findings": [
+    "Quality is within seed noise; training loss was about 5% higher with 64 px.",
+    "The 64 px reference reproduces slightly less of the per-camera detail spread."
+   ],
+   "verdict": "64 px references are usable at a small cost."
+  },
+  {
+   "id": "encoder",
+   "date": "2026-11-07",
+   "title": "Degradation encoder: DEResNet vs X5",
+   "summary": "The frozen DEResNet (S3Diff, 256-d) replaces X5 as the degradation encoder, at 128 px and 64 px references.",
+   "purpose": "X5 sees the hand-cropped references as almost identical; DEResNet separates them more. Does the generator benefit?",
+   "setup": [
+    [
+     "Losses",
+     "grid LPIPS 2.0, native low-pass MSE, native PSD"
+    ],
+    [
+     "Data",
+     "DRealSR ×4"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "Quality on the native 64 px LR (seed 0 / seed 1)",
+     "headers": [
+      "Experiment",
+      "LPIPS ↓",
+      "DISTS ↓",
+      "FID ↓",
+      "PSNR"
+     ],
+     "rows": [
+      [
+       "X5, 128 px",
+       "<strong>0.0320/0.0343</strong>",
+       "<strong>0.1055/0.1074</strong>",
+       "<strong>40.6/38.4</strong>",
+       "33.21/33.22"
+      ],
+      [
+       "X5, 64 px",
+       "0.0342/0.0337",
+       "0.1066/0.1068",
+       "39.7/40.7",
+       "33.45/33.09"
+      ],
+      [
+       "DEResNet, 128 px",
+       "0.0332/0.0343",
+       "0.1072/0.1071",
+       "42.8/38.7",
+       "33.32/33.32"
+      ],
+      [
+       "DEResNet, 64 px",
+       "0.0346/0.0359",
+       "0.1076/0.1083",
+       "40.9/39.8",
+       "33.36/33.26"
+      ]
+     ],
+     "note": "Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. FID differs by up to ~4 points between seeds. PSNR is not used for selection."
+    },
+    {
+     "title": "Realism analysis",
+     "headers": [
+      "Experiment",
+      "Noise",
+      "Detail",
+      "HF power",
+      "Saturation",
+      "Noise slope",
+      "Detail slope",
+      "HF slope",
+      "z_std",
+      "Diversity"
+     ],
+     "rows": [
+      [
+       "X5, 128 px",
+       "0.93",
+       "0.94",
+       "1.01",
+       "0.981",
+       "<strong>0.81</strong>",
+       "0.79",
+       "0.58",
+       "<strong>0.36</strong>",
+       "<strong>0.0051</strong>"
+      ],
+      [
+       "X5, 64 px",
+       "0.93",
+       "0.95",
+       "1.01",
+       "0.967",
+       "0.77",
+       "0.74",
+       "0.58",
+       "0.35",
+       "0.0049"
+      ],
+      [
+       "DEResNet, 128 px",
+       "0.91",
+       "0.91",
+       "1.03",
+       "0.970",
+       "0.80",
+       "<strong>0.84</strong>",
+       "<strong>0.59</strong>",
+       "0.29",
+       "0.0036"
+      ],
+      [
+       "DEResNet, 64 px",
+       "0.91",
+       "0.91",
+       "1.01",
+       "0.972",
+       "0.75",
+       "0.75",
+       "0.48",
+       "0.29",
+       "0.0035"
+      ]
+     ],
+     "note": "Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped through the same measurement reaches only 0.92 / 0.94 / 0.85 / 1.00. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise."
+    }
+   ],
+   "findings": [
+    "DEResNet and X5 tie within seed noise at both reference sizes.",
+    "Neither encoder makes the generator transfer noise or JPEG; outputs follow mainly blur."
+   ],
+   "verdict": "No reason to switch encoders on these metrics alone."
+  },
+  {
+   "id": "handcrops",
+   "date": "2026-11-07",
+   "title": "Hand-cropped references: what the encoders see",
+   "summary": "Four hand-cropped 64 px LR references (two labelled low degradation, two high) applied to three hand-cropped HR crops, with fixed noise per HR.",
+   "purpose": "Check whether the generator follows the user-labelled degradation, and whether the encoders can tell the references apart.",
+   "setup": [
+    [
+     "References",
+     "lowdeg, lowdeg2, highdeg, highdeg2 (64×64)"
+    ],
+    [
+     "HR inputs",
+     "hr, hr2, hr3 (256×256)"
+    ],
+    [
+     "Models",
+     "X5 64 px, DEResNet 64 px"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "X5 cosine similarity between the references",
+     "headers": [
+      "",
+      "lowdeg",
+      "lowdeg2",
+      "highdeg",
+      "highdeg2"
+     ],
+     "rows": [
+      [
+       "lowdeg",
+       "1.000",
+       "0.978",
+       "0.988",
+       "0.993"
+      ],
+      [
+       "lowdeg2",
+       "0.978",
+       "1.000",
+       "0.958",
+       "0.970"
+      ],
+      [
+       "highdeg",
+       "0.988",
+       "0.958",
+       "1.000",
+       "0.991"
+      ],
+      [
+       "highdeg2",
+       "0.993",
+       "0.970",
+       "0.991",
+       "1.000"
+      ]
+     ],
+     "note": "X5 sees all four as almost the same."
+    },
+    {
+     "title": "DEResNet cosine similarity between the references",
+     "headers": [
+      "",
+      "lowdeg",
+      "lowdeg2",
+      "highdeg",
+      "highdeg2"
+     ],
+     "rows": [
+      [
+       "lowdeg",
+       "1.000",
+       "0.543",
+       "0.823",
+       "0.598"
+      ],
+      [
+       "lowdeg2",
+       "0.543",
+       "1.000",
+       "0.785",
+       "0.984"
+      ],
+      [
+       "highdeg",
+       "0.823",
+       "0.785",
+       "1.000",
+       "0.831"
+      ],
+      [
+       "highdeg2",
+       "0.598",
+       "0.984",
+       "0.831",
+       "1.000"
+      ]
+     ],
+     "note": "DEResNet separates them more, but part of the spread is image content, not degradation."
+    }
+   ],
+   "figures": [
+    {
+     "src": "assets/lrgen/img/handcrop_x5_64.jpg",
+     "caption": "X5 64 px model on the hand crops (seed 0)"
+    },
+    {
+     "src": "assets/lrgen/img/handcrop_deresnet_64.jpg",
+     "caption": "DEResNet 64 px model on the hand crops (seed 0)"
+    }
+   ],
+   "findings": [
+    "Outputs follow how blurry the reference is (lowdeg2 softest, highdeg sharpest), not the user labels.",
+    "Noise and JPEG artefacts of the references are not transferred.",
+    "A downscaled HR with no degradation scores up to 0.93 against a reference of similar content, so DEResNet similarity mixes content and degradation."
+   ],
+   "verdict": "The encoders separate references mainly by blur; the generator responds to that one axis."
+  },
+  {
+   "id": "allnative",
+   "date": "2026-11-08",
+   "title": "All-native DEResNet 64 px, with and without a discriminator",
+   "summary": "Every loss at native resolution (LPIPS moved to the native LR) with the DEResNet 64 px reference, then a native discriminator added on top.",
+   "purpose": "Repeat the native-LPIPS gain with DEResNet, and test whether a discriminator adds realism.",
+   "setup": [
+    [
+     "Encoder",
+     "DEResNet, 64 px native reference"
+    ],
+    [
+     "Losses",
+     "native low-pass MSE 1.0, native LPIPS 2.0, native PSD 0.1"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02, lr 1e-4, from 10k steps"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "Quality on the native 64 px LR (seed 0 / seed 1)",
+     "headers": [
+      "Experiment",
+      "LPIPS ↓",
+      "DISTS ↓",
+      "FID ↓",
+      "PSNR"
+     ],
+     "rows": [
+      [
+       "Grid LPIPS (reference)",
+       "0.0346/0.0359",
+       "0.1076/0.1083",
+       "40.9/39.8",
+       "33.36/33.26"
+      ],
+      [
+       "All-native",
+       "<strong>0.0325/0.0324</strong>",
+       "<strong>0.1066/0.1053</strong>",
+       "<strong>37.7/37.6</strong>",
+       "33.01/33.44"
+      ],
+      [
+       "All-native + discriminator",
+       "0.0331/0.0341",
+       "0.1086/0.1095",
+       "37.8/38.0",
+       "32.49/32.71"
+      ]
+     ],
+     "note": "Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. FID differs by up to ~4 points between seeds. PSNR is not used for selection."
+    },
+    {
+     "title": "Realism analysis",
+     "headers": [
+      "Experiment",
+      "Noise",
+      "Detail",
+      "HF power",
+      "Saturation",
+      "Noise slope",
+      "Detail slope",
+      "HF slope",
+      "z_std",
+      "Diversity"
+     ],
+     "rows": [
+      [
+       "Grid LPIPS (reference)",
+       "0.91",
+       "0.91",
+       "1.01",
+       "0.972",
+       "0.75",
+       "0.75",
+       "0.48",
+       "0.29",
+       "0.0035"
+      ],
+      [
+       "All-native",
+       "0.90",
+       "0.96",
+       "0.96",
+       "0.964",
+       "0.75",
+       "0.81",
+       "0.50",
+       "0.38",
+       "0.0113"
+      ],
+      [
+       "All-native + discriminator",
+       "0.91",
+       "0.94",
+       "0.95",
+       "0.955",
+       "<strong>0.78</strong>",
+       "<strong>0.97</strong>",
+       "<strong>0.57</strong>",
+       "<strong>0.49</strong>",
+       "<strong>0.0167</strong>"
+      ]
+     ],
+     "note": "Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped through the same measurement reaches only 0.92 / 0.94 / 0.85 / 1.00. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise."
+    },
+    {
+     "title": "Degradation matching (DEResNet on the hand-cropped references)",
+     "headers": [
+      "Experiment",
+      "Output vs output",
+      "Own reference",
+      "Other references",
+      "Gap ↑",
+      "Own ranked closest ↑"
+     ],
+     "rows": [
+      [
+       "Grid LPIPS (reference)",
+       "0.949",
+       "0.828",
+       "0.778",
+       "+0.050",
+       "<strong>25%</strong>"
+      ],
+      [
+       "All-native",
+       "0.954",
+       "0.801",
+       "0.764",
+       "+0.037",
+       "25%"
+      ],
+      [
+       "All-native + discriminator",
+       "0.950",
+       "0.830",
+       "0.788",
+       "+0.042",
+       "25%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px. The four references are 0.761 similar to each other, so outputs should spread about as much. \"Own ranked closest\" is chance at 25%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "figures": [
+    {
+     "src": "assets/lrgen/img/handcrop_allnative.jpg",
+     "caption": "All-native on the hand crops (seed 0)"
+    },
+    {
+     "src": "assets/lrgen/img/handcrop_allnative_gan.jpg",
+     "caption": "All-native + discriminator on the hand crops (seed 0)"
+    }
+   ],
+   "findings": [
+    "All-native beats grid LPIPS on both seeds: LPIPS −7%, FID about 2.5 points better.",
+    "The discriminator matches per-camera detail much better (slope about 0.97) and uses the noise input more, with FID unchanged.",
+    "Neither makes outputs follow the reference: own reference ranked closest only 25% of the time (chance)."
+   ],
+   "verdict": "All-native is the best on quality; adding the discriminator is the best on realism."
+  },
+  {
+   "id": "degnce",
+   "date": "2026-11-08",
+   "title": "Contrastive degradation loss (soft-target InfoNCE)",
+   "summary": "Each HR crop is generated with four references from the batch (same noise). For each reference, DEResNet must pick the output it produced among those four; near-identical references share the target. Tried at weights 0.02, 0.05 and 0.1, and at 0.05 and 0.1 with the discriminator.",
+   "purpose": "Outputs did not follow their reference. Comparing outputs that share the same HR content means content cannot decide the answer, only degradation can.",
+   "setup": [
+    [
+     "Base",
+     "all-native DEResNet 64 px"
+    ],
+    [
+     "Loss",
+     "w_deg_nce 0.02 / 0.05 / 0.1, τ = 0.1, soft-target τ_t = 0.05, K = 4"
+    ],
+    [
+     "Schedule",
+     "from 10k steps, ramped over 1k"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02 (where marked)"
+    ],
+    [
+     "Code",
+     "hr2lr/losses.py deg_nce_soft, hr2lr/train.py _deg_nce"
+    ]
+   ],
+   "tables": [
+    {
+     "title": "Quality on the native 64 px LR (seed 0 / seed 1)",
+     "headers": [
+      "Experiment",
+      "LPIPS ↓",
+      "DISTS ↓",
+      "FID ↓",
+      "PSNR"
+     ],
+     "rows": [
+      [
+       "All-native",
+       "<strong>0.0325/0.0324</strong>",
+       "<strong>0.1066/0.1053</strong>",
+       "<strong>37.7/37.6</strong>",
+       "33.01/33.44"
+      ],
+      [
+       "+ discriminator",
+       "0.0331/0.0341",
+       "0.1086/0.1095",
+       "37.8/38.0",
+       "32.49/32.71"
+      ],
+      [
+       "+ deg 0.02",
+       "0.0344/0.0347",
+       "0.1096/0.1076",
+       "41.4/39.7",
+       "33.06/33.16"
+      ],
+      [
+       "+ deg 0.05",
+       "0.0356/0.0365",
+       "0.1111/0.1097",
+       "41.0/40.4",
+       "33.02/33.19"
+      ],
+      [
+       "+ deg 0.1",
+       "0.0383/0.0416",
+       "0.1151/0.1157",
+       "42.1/41.5",
+       "32.74/32.79"
+      ],
+      [
+       "+ deg 0.05 + disc",
+       "0.0354/0.0348",
+       "0.1125/0.1112",
+       "39.3/39.6",
+       "32.24/32.60"
+      ],
+      [
+       "+ deg 0.1 + disc",
+       "0.0374/0.0396",
+       "0.1163/0.1168",
+       "40.7/40.3",
+       "32.16/32.27"
+      ]
+     ],
+     "note": "Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. FID differs by up to ~4 points between seeds. PSNR is not used for selection."
+    },
+    {
+     "title": "Realism analysis",
+     "headers": [
+      "Experiment",
+      "Noise",
+      "Detail",
+      "HF power",
+      "Saturation",
+      "Noise slope",
+      "Detail slope",
+      "HF slope",
+      "z_std",
+      "Diversity"
+     ],
+     "rows": [
+      [
+       "All-native",
+       "0.90",
+       "0.96",
+       "0.96",
+       "0.964",
+       "0.75",
+       "0.81",
+       "0.50",
+       "0.38",
+       "0.0113"
+      ],
+      [
+       "+ discriminator",
+       "0.91",
+       "0.94",
+       "0.95",
+       "0.955",
+       "<strong>0.78</strong>",
+       "0.97",
+       "<strong>0.57</strong>",
+       "<strong>0.49</strong>",
+       "<strong>0.0167</strong>"
+      ],
+      [
+       "+ deg 0.02",
+       "0.90",
+       "0.93",
+       "1.00",
+       "0.956",
+       "0.71",
+       "0.84",
+       "0.48",
+       "0.29",
+       "0.0069"
+      ],
+      [
+       "+ deg 0.05",
+       "0.90",
+       "0.92",
+       "1.00",
+       "0.957",
+       "0.72",
+       "0.85",
+       "0.43",
+       "0.27",
+       "0.0058"
+      ],
+      [
+       "+ deg 0.1",
+       "0.88",
+       "0.89",
+       "0.95",
+       "0.957",
+       "0.70",
+       "0.89",
+       "0.39",
+       "0.25",
+       "0.0050"
+      ],
+      [
+       "+ deg 0.05 + disc",
+       "0.89",
+       "0.92",
+       "1.00",
+       "0.951",
+       "0.75",
+       "<strong>0.97</strong>",
+       "0.47",
+       "0.40",
+       "0.0123"
+      ],
+      [
+       "+ deg 0.1 + disc",
+       "0.88",
+       "0.89",
+       "0.95",
+       "0.957",
+       "0.73",
+       "0.97",
+       "0.42",
+       "0.39",
+       "0.0123"
+      ]
+     ],
+     "note": "Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped through the same measurement reaches only 0.92 / 0.94 / 0.85 / 1.00. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise."
+    },
+    {
+     "title": "Degradation matching (DEResNet on the hand-cropped references)",
+     "headers": [
+      "Experiment",
+      "Output vs output",
+      "Own reference",
+      "Other references",
+      "Gap ↑",
+      "Own ranked closest ↑"
+     ],
+     "rows": [
+      [
+       "All-native",
+       "0.954",
+       "0.801",
+       "0.764",
+       "+0.037",
+       "25%"
+      ],
+      [
+       "+ discriminator",
+       "0.950",
+       "0.830",
+       "0.788",
+       "+0.042",
+       "25%"
+      ],
+      [
+       "+ deg 0.02",
+       "0.928",
+       "0.864",
+       "0.783",
+       "+0.081",
+       "25%"
+      ],
+      [
+       "+ deg 0.05",
+       "0.861",
+       "0.915",
+       "0.773",
+       "+0.142",
+       "38%"
+      ],
+      [
+       "+ deg 0.1",
+       "0.797",
+       "0.941",
+       "0.754",
+       "+0.186",
+       "<strong>54%</strong>"
+      ],
+      [
+       "+ deg 0.05 + disc",
+       "0.880",
+       "0.910",
+       "0.786",
+       "+0.125",
+       "38%"
+      ],
+      [
+       "+ deg 0.1 + disc",
+       "0.816",
+       "0.940",
+       "0.764",
+       "+0.175",
+       "54%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px. The four references are 0.761 similar to each other, so outputs should spread about as much. \"Own ranked closest\" is chance at 25%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "figures": [
+    {
+     "src": "assets/lrgen/img/handcrop_nce01.jpg",
+     "caption": "Degradation loss 0.1 on the hand crops (seed 0)"
+    },
+    {
+     "src": "assets/lrgen/img/handcrop_nce01_gan.jpg",
+     "caption": "Degradation loss 0.1 + discriminator on the hand crops (seed 0)"
+    }
+   ],
+   "findings": [
+    "The loss is the only change that makes outputs follow their reference: up to 54% own-reference ranking vs 25%, with output spread close to the references.",
+    "It costs quality at every weight; 0.02 already costs about 3 FID points with no matching gain.",
+    "The discriminator recovers part of the cost and restores noise-input use: 0.1 + disc keeps 54% matching with FID 40.5 vs 41.8 alone."
+   ],
+   "verdict": "A trade-off: all-native for quality, degradation loss 0.1 + discriminator for reference-following."
+  },
+  {
+   "id": "sweep",
+   "date": "2026-11-08",
+   "title": "Textured reference sweep and a stripe artefact",
+   "summary": "The DRealSR reference sweep now keeps the least flat of 16 random crops per photo (--texture-candidates 16, protocol v2_textured), over 6 test photos; the old sweep often landed on blank walls.",
+   "purpose": "Look at how outputs change with the reference on textured content, and find where fine stripes come from.",
+   "setup": [
+    [
+     "Sweep",
+     "hr2lr.reference_sweep, 6 sources, 2 cross-capture references + the matched one"
+    ],
+    [
+     "Models",
+     "all-native, + discriminator, + deg 0.1, + deg 0.1 + discriminator (seed 0)"
+    ]
+   ],
+   "figures": [
+    {
+     "src": "assets/lrgen/img/sweep_grass_nce01_gan.jpg",
+     "caption": "Grass, degradation loss 0.1 + discriminator"
+    },
+    {
+     "src": "assets/lrgen/img/sweep_grass_allnative.jpg",
+     "caption": "Grass, all-native"
+    },
+    {
+     "src": "assets/lrgen/img/sweep_wall_nce01.jpg",
+     "caption": "Flat wall, degradation loss 0.1"
+    },
+    {
+     "src": "assets/lrgen/img/sweep_wall_allnative.jpg",
+     "caption": "Flat wall, all-native"
+    }
+   ],
+   "findings": [
+    "Faint horizontal stripes on flat regions appear in all-native too, not only with the degradation loss or the discriminator; the grid-LPIPS model was smooth.",
+    "Likely cause (not yet confirmed): with every loss at native size, nothing constrains the pattern inside each 4×4 block.",
+    "With the degradation loss, the Canon reference makes the grass much more contrasty; with the striped-fabric reference a faint woven texture appears, which looks like reference content leaking in."
+   ],
+   "verdict": "Next: test the stripes with a small grid-level loss or a blurred downscale, and check content leakage with same-scene ×2/×3/×4 references."
+  }
+ ]
+}
