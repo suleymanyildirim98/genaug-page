@@ -26,7 +26,8 @@ OUT = PAGE / 'assets' / 'lrgen'
 P = 'DRealSR_x4_S_'
 REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_deresnet64_realism',
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
-           'DRealSR_x4_S_native_metrics_nce01_gan_realism']
+           'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
+           'DRealSR_x4_S_native_metrics_x5nce_s1_realism']
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -161,12 +162,32 @@ RUNS = [
                    'Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76).',
                    'The texture leak of Run 10 remains in the native sweep but is weaker and blotchier with the discriminator.'],
          verdict='Best trade-off for reference-following.'),
+    dict(key='nref64_x5_nlpips_nce01_gan002', size=64, emb='X5 + native LPIPS + deg NCE 0.1 (X5 judge) + disc', base=f'{N}_nce01_gan002',
+         title='Run 14 with the X5 encoder (conditioning and degradation loss)',
+         vars=[['Encoder', 'X5 (frozen, 128-d), also judges the degradation loss'], ['Reference size', '64 px'],
+               ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, on L2-normalised X5 embeddings']],
+         summary='Run 14 with DEResNet replaced by X5 everywhere: X5 encodes the reference and X5 embeddings of the output and '
+                 'the references define the degradation loss. Seed 1 is still training; numbers are seed 0 only until it finishes.',
+         purpose='Runs 10 and 14 copy reference texture into the output (a lattice on flat walls and doubled edges with the '
+                 'panasonic_187 reference). Test whether this comes from DEResNet mixing content into its degradation embedding.',
+         findings=['The texture leak is gone. Fine texture on flat regions with the panasonic_187 reference (high-pass std, '
+                   'real LR 2.41 for comparison): 3.13, the same as Run 8 without a degradation loss (3.08); Run 14: 3.62.',
+                   'Better quality than Run 14: LPIPS 0.0327 vs 0.0385, FID 38.9 vs 40.5 (seed 0).',
+                   'Reference following is weak: outputs change little between references, much like Run 8. Judged by '
+                   'DEResNet the own reference is ranked closest 25% of the time (chance), vs 54% for Run 14; judged by '
+                   'X5 it is 50%, vs 33–42% for the other runs.',
+                   'X5 sees the four hand-cropped references as nearly identical (cosine 0.98), so the loss has little to separate.'],
+         verdict='Changing the encoder removes the artifacts, but mostly because the X5 loss asks for very little reference '
+                 'dependence. It does not give artifact-free reference following.'),
 ]
 
 
 def load(ev):
     models, rt = {}, None
     for name in REALISM:
+        if not (ev / name / 'realism_stats.json').exists():   # a seed still being evaluated
+            continue
         j = json.loads((ev / name / 'realism_stats.json').read_text())
         for run, m in j['models'].items():
             models.setdefault(run, m)
@@ -177,8 +198,10 @@ def load(ev):
     return models, floor, emb
 
 
-def seeds(models, key):
-    return [models[f'{P}{key}_s{s}'] for s in (0, 1)]
+def seeds(models, key, keep_missing=False):
+    """Seed 0 and 1 results; a seed not evaluated yet is None (kept only with keep_missing)."""
+    out = [models.get(f'{P}{key}_s{s}') for s in (0, 1)]
+    return out if keep_missing else [m for m in out if m]
 
 
 def stat(m, kind, k):
@@ -191,7 +214,7 @@ def stat(m, kind, k):
 
 def metric_table(title, note, spec, models, run, base, labels, extra=None):
     """spec: (label, kind, key, digits, better) with better in 'min', 'max', 'one' (closest to 1) or None."""
-    cur, ref = seeds(models, run['key']), (seeds(models, base['key']) if base else None)
+    cur, ref = seeds(models, run['key'], keep_missing=True), (seeds(models, base['key']) if base else None)
     headers = ['Metric', 'Seed 0', 'Seed 1', 'Mean']
     if ref:
         headers += [f'{labels[base["key"]]} (mean)', 'Change']
@@ -199,9 +222,9 @@ def metric_table(title, note, spec, models, run, base, labels, extra=None):
         headers.append(extra[0])
     rows = []
     for label, kind, key, d, better in spec:
-        a, b = (stat(m, kind, key) for m in cur)
-        mean = (a + b) / 2
-        row = [label, f'{a:.{d}f}', f'{b:.{d}f}', f'<strong>{mean:.{d}f}</strong>']
+        vals = [stat(m, kind, key) if m else None for m in cur]
+        mean = st.mean(v for v in vals if v is not None)
+        row = [label] + [f'{v:.{d}f}' if v is not None else 'pending' for v in vals] + [f'<strong>{mean:.{d}f}</strong>']
         if ref:
             rm = st.mean(stat(m, kind, key) for m in ref)
             delta = mean - rm
@@ -286,7 +309,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–14).')
+                            'See the 64 px runs (Run 5 and Runs 7–15).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
