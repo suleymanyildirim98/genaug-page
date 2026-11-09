@@ -418,9 +418,18 @@
       "caption": "panasonic_145"
      }
     ],
-    "hand": [],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run1/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run1/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "The hand-crop sweep is not available for this run."
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom. This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw in training."
    }
   },
   {
@@ -629,9 +638,18 @@
       "caption": "panasonic_145"
      }
     ],
-    "hand": [],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run2/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run2/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "The hand-crop sweep is not available for this run."
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom. This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw in training."
    }
   },
   {
@@ -840,9 +858,18 @@
       "caption": "panasonic_145"
      }
     ],
-    "hand": [],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run3/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run3/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "The hand-crop sweep is not available for this run."
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom. This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw in training."
    }
   },
   {
@@ -1051,9 +1078,18 @@
       "caption": "panasonic_145"
      }
     ],
-    "hand": [],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run4/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run4/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "The hand-crop sweep is not available for this run."
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom. This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw in training."
    }
   },
   {
@@ -1481,9 +1517,18 @@
       "caption": "panasonic_145"
      }
     ],
-    "hand": [],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run6/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run6/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "The hand-crop sweep is not available for this run."
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom. This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw in training."
    }
   },
   {
