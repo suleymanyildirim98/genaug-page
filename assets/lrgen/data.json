@@ -419,7 +419,7 @@
      }
     ],
     "hand": [],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–14)."
    }
   },
@@ -630,7 +630,7 @@
      }
     ],
     "hand": [],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–14)."
    }
   },
@@ -841,7 +841,7 @@
      }
     ],
     "hand": [],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–14)."
    }
   },
@@ -1052,7 +1052,7 @@
      }
     ],
     "hand": [],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–14)."
    }
   },
@@ -1272,7 +1272,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -1482,7 +1482,7 @@
      }
     ],
     "hand": [],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–14)."
    }
   },
@@ -1732,7 +1732,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -1768,7 +1768,7 @@
    "compared_to": "Run 7 · DEResNet encoder, 64 px reference",
    "findings": [
     "Better than Run 7 on both seeds: LPIPS about 8% lower, FID about 2.8 points better.",
-    "Faint horizontal stripes on flat regions in the textured sweep, which the grid-LPIPS run does not show (likely the unconstrained 4×4 block content; not yet confirmed)."
+    "The native sweep is clean on flat regions. (Stripes seen in an earlier sweep were in the 256 px output inside 4×4 blocks, which average out in the native LR.)"
    ],
    "verdict": "Best quality of all runs.",
    "tables": [
@@ -1990,7 +1990,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -2248,7 +2248,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -2285,7 +2285,7 @@
    "findings": [
     "Outputs follow their reference: own reference ranked closest 54% of the time (chance 25%).",
     "Costs about 4 FID points against Run 8.",
-    "In the textured sweep the Canon reference makes grass much more contrasty, and a faint woven texture appears with the striped-fabric reference (likely reference content leaking in)."
+    "In the native sweep the Canon reference makes grass and edges clearly more contrasty, and the striped-facade reference (panasonic_187) puts a faint repeating pattern on a flat wall: reference texture leaks into the native LR."
    ],
    "verdict": "The loss works, at a quality cost.",
    "tables": [
@@ -2507,7 +2507,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -2765,7 +2765,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -3022,7 +3022,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -3280,7 +3280,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   },
@@ -3316,7 +3316,8 @@
    "compared_to": "Run 9 · All-native + discriminator",
    "findings": [
     "Keeps 54% own-reference ranking with FID 40.5 vs 41.8 for Run 10.",
-    "Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76)."
+    "Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76).",
+    "The texture leak of Run 10 remains in the native sweep but is weaker and blotchier with the discriminator."
    ],
    "verdict": "Best trade-off for reference-following.",
    "tables": [
@@ -3538,7 +3539,7 @@
       "caption": "Seed 1"
      }
     ],
-    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). The same photos and references are used for every run, so tabs can be compared directly.",
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
     "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
    }
   }

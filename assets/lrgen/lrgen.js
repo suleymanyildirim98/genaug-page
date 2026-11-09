@@ -21,7 +21,7 @@
   }
   function visuals(r) {
     const v = r.visuals;
-    const sweep = `<section class="comparison-section"><div class="comparison-heading"><h3>Reference sweep (DRealSR test, textured crops)</h3><p>${v.sweep_note}</p></div>`
+    const sweep = `<section class="comparison-section"><div class="comparison-heading"><h3>Reference sweep (DRealSR test, textured crops, native LR)</h3><p>${v.sweep_note}</p></div>`
       + (v.sweep.length ? `<div class="lrgen-figures">${v.sweep.map((f) => figure(f, `${r.name} reference sweep`)).join("")}</div>` : "") + `</section>`;
     const hand = `<section class="comparison-section"><div class="comparison-heading"><h3>Hand-cropped reference sweep</h3><p>${v.hand_note}</p></div>`
       + (v.hand.length ? `<div class="lrgen-figures wide">${v.hand.map((f) => figure(f, `${r.name} hand-crop sweep`)).join("")}</div>` : "") + `</section>`;

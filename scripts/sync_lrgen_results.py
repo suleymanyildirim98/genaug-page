@@ -103,8 +103,7 @@ RUNS = [
          summary='Every loss at native resolution: Run 7 with LPIPS moved to the native LR.',
          purpose='Repeat the native-LPIPS gain of Run 2 with the DEResNet 64 px setup.',
          findings=['Better than Run 7 on both seeds: LPIPS about 8% lower, FID about 2.8 points better.',
-                   'Faint horizontal stripes on flat regions in the textured sweep, which the grid-LPIPS run does not show '
-                   '(likely the unconstrained 4×4 block content; not yet confirmed).'],
+                   'The native sweep is clean on flat regions. (Stripes seen in an earlier sweep were in the 256 px output inside 4×4 blocks, which average out in the native LR.)'],
          verdict='Best quality of all runs.'),
     dict(key=f'{N}_gan002', size=64, emb='native LPIPS + disc', base=N,
          title='All-native + discriminator',
@@ -125,8 +124,7 @@ RUNS = [
                  'degradation can decide which output belongs to which reference.',
          findings=['Outputs follow their reference: own reference ranked closest 54% of the time (chance 25%).',
                    'Costs about 4 FID points against Run 8.',
-                   'In the textured sweep the Canon reference makes grass much more contrasty, and a faint woven texture appears '
-                   'with the striped-fabric reference (likely reference content leaking in).'],
+                   'In the native sweep the Canon reference makes grass and edges clearly more contrasty, and the striped-facade reference (panasonic_187) puts a faint repeating pattern on a flat wall: reference texture leaks into the native LR.'],
          verdict='The loss works, at a quality cost.'),
     dict(key=f'{N}_nce005', size=64, emb='native LPIPS + deg NCE 0.05', base=N,
          title='All-native + degradation loss 0.05',
@@ -160,7 +158,8 @@ RUNS = [
          summary='Run 10 plus the native discriminator.',
          purpose='Keep the strongest reference-following while recovering quality.',
          findings=['Keeps 54% own-reference ranking with FID 40.5 vs 41.8 for Run 10.',
-                   'Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76).'],
+                   'Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76).',
+                   'The texture leak of Run 10 remains in the native sweep but is weaker and blotchier with the discriminator.'],
          verdict='Best trade-off for reference-following.'),
 ]
 
@@ -268,13 +267,15 @@ def save(src, dst, width):
 def visuals(ev, run, rid):
     key = run['key']
     out = {'sweep': [], 'hand': []}
-    sw = ev / f'{P}{key}_s0_reference_sweep_textured'
+    sw = ev / f'{P}{key}_s0_reference_sweep_native'
     if (sw / 'manifest.json').exists():
         man = json.loads((sw / 'manifest.json').read_text())
         refs = ', '.join(r['capture_id'] for r in man['references'])
         out['sweep_note'] = (f'Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR '
                              f'crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references '
-                             f'({refs}). The same photos and references are used for every run, so tabs can be compared directly.')
+                             f'({refs}). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first '
+                             f'column is the real native LR), its centre, and the difference to the matched output ×4. The same photos '
+                             f'and references are used for every run, so tabs can be compared directly.')
         for i, s in enumerate(man['sources']):
             f = sw / f'HR_{i:02d}_x4' / 'comparison.png'
             if f.exists():
