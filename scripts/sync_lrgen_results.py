@@ -27,7 +27,7 @@ P = 'DRealSR_x4_S_'
 REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_deresnet64_realism',
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism']
-HAND = {64: 'hand_crops_nref64_last', 128: 'hand_crops_nref128_last'}
+HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
 SHARED = [['Data', 'DRealSR ×4 train split, camera-balanced sampling, 256 px HR / 64 px LR crops'],
@@ -281,15 +281,16 @@ def visuals(ev, run, rid):
                 out['sweep'].append(dict(src=save(f, OUT / 'img' / rid / f'sweep_{i}.jpg', 900), caption=s['image_id'].replace('_x4', '')))
     else:
         out['sweep_note'] = 'The textured reference sweep has not been run for this checkpoint yet.'
-    for s in (0, 1):
-        f = ev / HAND[run['size']] / f'grid_{P}{key}_s{s}.png'
-        if f.exists():
-            out['hand'].append(dict(src=save(f, OUT / 'img' / rid / f'hand_s{s}.jpg', 1200), caption=f'Seed {s}'))
     out['hand_note'] = ('Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references '
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
-        out['hand_note'] += (' This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw '
-                             'in training.')
+        out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
+                            'See the 64 px runs (Run 5 and Runs 7–14).')
+        return out
+    for s in (0, 1):
+        f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
+        if f.exists():
+            out['hand'].append(dict(src=save(f, OUT / 'img' / rid / f'hand_s{s}.jpg', 1200), caption=f'Seed {s}'))
     if not out['hand']:
         out['hand_note'] = 'The hand-crop sweep is not available for this run.'
     return out
