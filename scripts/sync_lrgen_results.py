@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Build the HR->LR generator (lr_generation) experiment log for lrgen.html.
+"""Build the HR->LR generator (lr_generation) run log for lrgen.html.
 
-Reads the native-resolution realism reports, the hand-crop embedding report and the qualitative grids written by
-lr_generation (hr2lr.realism_stats, hr2lr.reference_sweep and the hand-crop sweep) from WORK_DIR, and writes
-assets/lrgen/data.json plus JPEG copies of the figures under assets/lrgen/img/.
+One tab per training run (Run 1, Run 2, ...). Each run has a description, its variables, a quantitative-metrics table
+and a realism table (both seeds), degradation matching on the hand-cropped references where measured, and two visual
+sets: the textured DRealSR reference sweep and the hand-crop sweep.
+
+Reads from WORK_DIR/evaluations (written by hr2lr.realism_stats, hr2lr.reference_sweep and the hand-crop sweep) and
+writes assets/lrgen/data.json plus JPEG copies of the figures under assets/lrgen/img/<run>/.
 
     python scripts/sync_lrgen_results.py [--work-dir /scratch/suleymanyildirim22/lr_generation_work]
 
@@ -12,6 +15,7 @@ Every number on the page comes from these files; the descriptions below are the 
 import argparse
 import datetime as dt
 import json
+import shutil
 import statistics as st
 from pathlib import Path
 
@@ -23,6 +27,142 @@ P = 'DRealSR_x4_S_'
 REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_deresnet64_realism',
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism']
+HAND = {64: 'hand_crops_nref64_last', 128: 'hand_crops_nref128_last'}
+N = 'nref64_deresnet_nlpips'
+
+SHARED = [['Data', 'DRealSR ×4 train split, camera-balanced sampling, 256 px HR / 64 px LR crops'],
+          ['Training', '50k steps, generator body frozen until 10k, bf16'],
+          ['Base losses', 'native low-pass MSE 1.0 and native power spectrum (PSD, YCbCr) 0.1, both on the 64 px output'],
+          ['Reference', 'a native LR crop from another capture, encoded by a frozen degradation encoder'],
+          ['Evaluation', '744 DRealSR ×4 test crops, last checkpoint, seeds 0 and 1, native 64 px output (256 px output area-downscaled by 4)']]
+
+RUNS = [
+    dict(key='nref_x5', size=128, emb=None, base=None,
+         title='X5 encoder, 128 px reference, grid LPIPS',
+         vars=[['Encoder', 'X5 (frozen, 128-d)'], ['Reference size', '128 px'], ['Perceptual loss', 'LPIPS 2.0 on the 256 px grid'],
+               ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='The starting point of this series: the reference-conditioned generator with LPIPS computed on the 256 px HR grid.',
+         purpose='Baseline for the perceptual-loss and encoder comparisons.',
+         findings=['Reference point for Runs 2–6.'],
+         verdict='Baseline.'),
+    dict(key='nref_x5_nlpips', size=128, emb=None, base='nref_x5',
+         title='Native LPIPS instead of grid LPIPS',
+         vars=[['Encoder', 'X5'], ['Reference size', '128 px'], ['Perceptual loss', 'LPIPS 2.0 on the native 64 px output'],
+               ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='LPIPS moved from the 256 px grid to the native 64 px LR; everything else as Run 1.',
+         purpose='Only the native LR is used. Grid LPIPS also constrains the content inside each 4×4 block, which never reaches the LR.',
+         findings=['Best LPIPS and DISTS of the X5 128 px runs on both seeds.',
+                   'FID ties with the discriminator run (Run 4), 37.5 vs 37.3.'],
+         verdict='Native LPIPS is better than grid LPIPS for the native output.'),
+    dict(key='nref_x5_nolpips', size=128, emb=None, base='nref_x5',
+         title='No LPIPS',
+         vars=[['Encoder', 'X5'], ['Reference size', '128 px'], ['Perceptual loss', 'none'], ['Discriminator', 'none'],
+               ['Degradation loss', 'none']],
+         summary='Run 1 without any perceptual loss: only native low-pass MSE and PSD.',
+         purpose='Check whether LPIPS is needed at all.',
+         findings=['Clearly worse quality: FID about 47 vs 38.', 'Outputs change most with the noise input.'],
+         verdict='LPIPS is needed.'),
+    dict(key='nref_x5_gan002', size=128, emb=None, base='nref_x5',
+         title='Grid LPIPS + native discriminator',
+         vars=[['Encoder', 'X5'], ['Reference size', '128 px'], ['Perceptual loss', 'LPIPS 2.0 on the 256 px grid'],
+               ['Discriminator', 'native, weight 0.02, lr 1e-4, from 10k steps'], ['Degradation loss', 'none']],
+         summary='Run 1 plus a discriminator on the native 64 px output.',
+         purpose='Test whether adversarial training adds camera-specific realism.',
+         findings=['Best camera-detail slope of the X5 runs (about 0.96) and more use of the noise input than Runs 1–2.', 'Small PSNR cost; FID level with Run 2.'],
+         verdict='The discriminator helps realism without hurting FID.'),
+    dict(key='nref64_x5', size=64, emb=None, base='nref_x5',
+         title='X5 encoder, 64 px reference',
+         vars=[['Encoder', 'X5'], ['Reference size', '64 px (centre of the 128 px native reference)'],
+               ['Perceptual loss', 'LPIPS 2.0 on the 256 px grid'], ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='As Run 1, but the encoder sees a 64 px reference (256 px of HR area).',
+         purpose='Hand-picked references are small; measure the cost of a 64 px reference.',
+         findings=['Quality within seed noise of Run 1; training loss about 5% higher.',
+                   'Slightly less of the per-camera detail spread is reproduced.'],
+         verdict='64 px references are usable at a small cost.'),
+    dict(key='nref_deresnet', size=128, emb=None, base='nref_x5',
+         title='DEResNet encoder, 128 px reference',
+         vars=[['Encoder', 'DEResNet (S3Diff, frozen, 256-d)'], ['Reference size', '128 px'],
+               ['Perceptual loss', 'LPIPS 2.0 on the 256 px grid'], ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='Run 1 with DEResNet as the degradation encoder.',
+         purpose='X5 sees the hand-cropped references as almost identical; DEResNet separates them more.',
+         findings=['Ties with X5 (Run 1) within seed noise.'],
+         verdict='No gain from switching encoders at 128 px.'),
+    dict(key='nref64_deresnet', size=64, emb='grid LPIPS', base='nref64_x5',
+         title='DEResNet encoder, 64 px reference',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'LPIPS 2.0 on the 256 px grid'],
+               ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='Run 5 with DEResNet as the degradation encoder.',
+         purpose='The configuration used for the hand-cropped 64 px references.',
+         findings=['Ties with X5 64 px (Run 5) within seed noise.',
+                   'On the hand crops, outputs follow how blurry the reference is, not its noise or JPEG artefacts.'],
+         verdict='Base for the all-native runs.'),
+    dict(key=N, size=64, emb='native LPIPS', base='nref64_deresnet',
+         title='All-native DEResNet 64 px',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'LPIPS 2.0 on the native 64 px output'],
+               ['Discriminator', 'none'], ['Degradation loss', 'none']],
+         summary='Every loss at native resolution: Run 7 with LPIPS moved to the native LR.',
+         purpose='Repeat the native-LPIPS gain of Run 2 with the DEResNet 64 px setup.',
+         findings=['Better than Run 7 on both seeds: LPIPS about 8% lower, FID about 2.8 points better.',
+                   'Faint horizontal stripes on flat regions in the textured sweep, which the grid-LPIPS run does not show '
+                   '(likely the unconstrained 4×4 block content; not yet confirmed).'],
+         verdict='Best quality of all runs.'),
+    dict(key=f'{N}_gan002', size=64, emb='native LPIPS + disc', base=N,
+         title='All-native + discriminator',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02, lr 1e-4, from 10k steps'], ['Degradation loss', 'none']],
+         summary='Run 8 plus the native discriminator.',
+         purpose='Add camera-specific realism on top of the best-quality run.',
+         findings=['Per-camera detail spread almost fully reproduced (slope about 0.97); more use of the noise input.',
+                   'FID unchanged within seed noise.'],
+         verdict='Best realism at no quality cost.'),
+    dict(key=f'{N}_nce01', size=64, emb='native LPIPS + deg NCE 0.1', base=N,
+         title='All-native + degradation loss 0.1',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'none'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, τ 0.1, τ_t 0.05, K 4, from 10k steps (1k ramp)']],
+         summary='Run 8 plus a contrastive degradation loss. Each HR crop is generated with four references from the batch (same '
+                 'noise); for each reference, DEResNet must pick the output it produced. Near-identical references share the target.',
+         purpose='In Runs 7–9 the outputs did not follow their reference. With identical content in all four outputs, only the '
+                 'degradation can decide which output belongs to which reference.',
+         findings=['Outputs follow their reference: own reference ranked closest 54% of the time (chance 25%).',
+                   'Costs about 4 FID points against Run 8.',
+                   'In the textured sweep the Canon reference makes grass much more contrasty, and a faint woven texture appears '
+                   'with the striped-fabric reference (likely reference content leaking in).'],
+         verdict='The loss works, at a quality cost.'),
+    dict(key=f'{N}_nce005', size=64, emb='native LPIPS + deg NCE 0.05', base=N,
+         title='All-native + degradation loss 0.05',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'none'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.05']],
+         summary='Run 10 with half the degradation-loss weight.',
+         purpose='Find a weight with less quality cost.',
+         findings=['Own reference ranked closest 38%.', 'FID cost about 3 points against Run 8.'],
+         verdict='In between Runs 8 and 10.'),
+    dict(key=f'{N}_nce002', size=64, emb='native LPIPS + deg NCE 0.02', base=N,
+         title='All-native + degradation loss 0.02',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'none'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.02']],
+         summary='Run 10 with a fifth of the degradation-loss weight.',
+         purpose='Lowest weight of the sweep.',
+         findings=['Already costs about 3 FID points, with no matching gain (25%, chance).'],
+         verdict='Too weak to help, still costs quality.'),
+    dict(key=f'{N}_nce005_gan002', size=64, emb='native LPIPS + deg NCE 0.05 + disc', base=f'{N}_gan002',
+         title='All-native + degradation loss 0.05 + discriminator',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'], ['Degradation loss', 'soft-target InfoNCE, weight 0.05']],
+         summary='Run 11 plus the native discriminator.',
+         purpose='Check whether the discriminator recovers the quality lost to the degradation loss.',
+         findings=['Recovers part of the FID cost (about 39.5 vs 40.7 for Run 11).',
+                   'Keeps 38% own-reference ranking; per-camera detail slope about 0.97.'],
+         verdict='The discriminator offsets part of the degradation-loss cost.'),
+    dict(key=f'{N}_nce01_gan002', size=64, emb='native LPIPS + deg NCE 0.1 + disc', base=f'{N}_gan002',
+         title='All-native + degradation loss 0.1 + discriminator',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'], ['Degradation loss', 'soft-target InfoNCE, weight 0.1']],
+         summary='Run 10 plus the native discriminator.',
+         purpose='Keep the strongest reference-following while recovering quality.',
+         findings=['Keeps 54% own-reference ranking with FID 40.5 vs 41.8 for Run 10.',
+                   'Outputs spread much more like the references do: output-vs-output similarity 0.82 vs 0.95 for Run 9 (references: 0.76).'],
+         verdict='Best trade-off for reference-following.'),
+]
 
 
 def load(ev):
@@ -34,94 +174,125 @@ def load(ev):
         rt = rt or j
     floor = {k: st.mean(v[k] for v in rt['round_trip_ratio'].values()) for k in ('noise', 'detail', 'hf_power', 'saturation')}
     floor['fid'] = rt['round_trip_native_fid']
-    emb = json.loads((ev / 'hand_crops_nref64_last' / 'embedding_similarity.json').read_text())
+    emb = json.loads((ev / HAND[64] / 'embedding_similarity.json').read_text())['DEResNet']
     return models, floor, emb
 
 
-def pair(models, run, key):
-    return [models[f'{P}{run}_s{s}']['overall'][key] for s in (0, 1)]
+def seeds(models, key):
+    return [models[f'{P}{key}_s{s}'] for s in (0, 1)]
 
 
-def best_marks(values, mode):
-    """Index of the best row: mode 'min', 'max' or 'one' (closest to 1)."""
-    score = {'min': lambda v: v, 'max': lambda v: -v, 'one': lambda v: abs(v - 1)}[mode]
-    return min(range(len(values)), key=lambda i: score(values[i]))
+def stat(m, kind, k):
+    if kind == 'overall':
+        return m['overall'][k]
+    if kind == 'ratio':
+        return st.mean(v[k] for v in m['ratio'].values())
+    return m['camera_spread']['x4'][k]['slope']
 
 
-def quality_table(models, arms, note=''):
-    keys = [('native_lpips', 'LPIPS ↓', 4, 'min'), ('native_dists', 'DISTS ↓', 4, 'min'),
-            ('native_fid', 'FID ↓', 1, 'min'), ('native_psnr', 'PSNR', 2, None)]
-    vals = {k: [pair(models, run, k) for _, run in arms] for k, *_ in keys}
-    best = {k: best_marks([st.mean(v) for v in vals[k]], mode) for k, _, _, mode in keys if mode}
+def metric_table(title, note, spec, models, run, base, labels, extra=None):
+    """spec: (label, kind, key, digits, better) with better in 'min', 'max', 'one' (closest to 1) or None."""
+    cur, ref = seeds(models, run['key']), (seeds(models, base['key']) if base else None)
+    headers = ['Metric', 'Seed 0', 'Seed 1', 'Mean']
+    if ref:
+        headers += [f'{labels[base["key"]]} (mean)', 'Change']
+    if extra:
+        headers.append(extra[0])
     rows = []
-    for i, (label, _) in enumerate(arms):
-        row = [label]
-        for k, _, d, _ in keys:
-            cell = '/'.join(f'{x:.{d}f}' for x in vals[k][i])
-            row.append(f'<strong>{cell}</strong>' if best.get(k) == i else cell)
+    for label, kind, key, d, better in spec:
+        a, b = (stat(m, kind, key) for m in cur)
+        mean = (a + b) / 2
+        row = [label, f'{a:.{d}f}', f'{b:.{d}f}', f'<strong>{mean:.{d}f}</strong>']
+        if ref:
+            rm = st.mean(stat(m, kind, key) for m in ref)
+            delta = mean - rm
+            good = None if better is None else {'min': delta < 0, 'max': delta > 0, 'one': abs(mean - 1) < abs(rm - 1)}[better]
+            cls = '' if good is None or abs(delta) < 10 ** -d else (' class="up"' if good else ' class="down"')
+            row += [f'{rm:.{d}f}', f'<span{cls}>{delta:+.{d}f}</span>']
+        if extra:
+            row.append(extra[1].get(key, '—'))
         rows.append(row)
-    return dict(title='Quality on the native 64 px LR (seed 0 / seed 1)', headers=['Experiment'] + [h for _, h, _, _ in keys],
-                rows=rows, note=note or 'Lower is better for LPIPS, DISTS and FID; the best mean of the two seeds is bold. '
-                'FID differs by up to ~4 points between seeds. PSNR is not used for selection.')
+    return dict(title=title, headers=headers, rows=rows, note=note)
 
 
-def realism_table(models, arms, floor):
-    def r(run, k):
-        return st.mean(st.mean(v[k] for v in models[f'{P}{run}_s{s}']['ratio'].values()) for s in (0, 1))
-
-    def sl(run, k):
-        return st.mean(models[f'{P}{run}_s{s}']['camera_spread']['x4'][k]['slope'] for s in (0, 1))
-
-    def o(run, k):
-        return st.mean(pair(models, run, k))
-    cols = [('Noise', lambda a: r(a, 'noise'), 2, None), ('Detail', lambda a: r(a, 'detail'), 2, None),
-            ('HF power', lambda a: r(a, 'hf_power'), 2, None), ('Saturation', lambda a: r(a, 'saturation'), 3, None),
-            ('Noise slope', lambda a: sl(a, 'noise'), 2, 'one'), ('Detail slope', lambda a: sl(a, 'detail'), 2, 'one'),
-            ('HF slope', lambda a: sl(a, 'hf_power'), 2, 'one'), ('z_std', lambda a: o(a, 'z_std_over_real_noise'), 2, 'max'),
-            ('Diversity', lambda a: o(a, 'diversity_lpips'), 4, 'max')]
-    vals = [[f(run) for _, f, _, _ in cols] for _, run in arms]
-    best = {j: best_marks([v[j] for v in vals], mode) for j, (_, _, _, mode) in enumerate(cols) if mode}
-    rows = [[label] + [(f'<strong>{v:.{cols[j][2]}f}</strong>' if best.get(j) == i else f'{v:.{cols[j][2]}f}')
-                       for j, v in enumerate(vals[i])] for i, (label, _) in enumerate(arms)]
-    note = (f'Mean of both seeds. Noise / detail / HF power / saturation are generated ÷ real (1 = real); a real LR round-tripped '
-            f'through the same measurement reaches only {floor["noise"]:.2f} / {floor["detail"]:.2f} / {floor["hf_power"]:.2f} / '
-            f'{floor["saturation"]:.2f}. Slopes: how much of the real per-camera spread is reproduced (1 = all). z_std: output change '
-            'per unit of input noise, over the real noise level. Diversity: LPIPS between outputs for different noise.')
-    return dict(title='Realism analysis', headers=['Experiment'] + [c for c, *_ in cols], rows=rows, note=note)
+def quality(models, run, base, labels):
+    spec = [('LPIPS ↓', 'overall', 'native_lpips', 4, 'min'), ('DISTS ↓', 'overall', 'native_dists', 4, 'min'),
+            ('FID ↓', 'overall', 'native_fid', 2, 'min'), ('PSNR (dB)', 'overall', 'native_psnr', 2, None)]
+    return metric_table('Quantitative metrics', 'Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and '
+                        'FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to '
+                        'select runs. Change: green = better than the comparison run, red = worse.', spec, models, run, base, labels)
 
 
-def matching_table(emb, arms, encoder='DEResNet'):
-    e = emb[encoder]
+def realism(models, run, base, labels, floor):
+    spec = [('Noise ratio', 'ratio', 'noise', 3, 'one'), ('Detail ratio', 'ratio', 'detail', 3, 'one'),
+            ('HF power ratio', 'ratio', 'hf_power', 3, 'one'), ('Saturation ratio', 'ratio', 'saturation', 3, 'one'),
+            ('Noise camera slope', 'slope', 'noise', 3, 'one'), ('Detail camera slope', 'slope', 'detail', 3, 'one'),
+            ('HF camera slope', 'slope', 'hf_power', 3, 'one'), ('Noise use (z_std ÷ real noise) ↑', 'overall', 'z_std_over_real_noise', 3, 'max'),
+            ('Diversity (LPIPS between noise draws) ↑', 'overall', 'diversity_lpips', 4, 'max')]
+    rt = {k: f'{floor[k]:.2f}' for k in ('noise', 'detail', 'hf_power', 'saturation')}
+    return metric_table('Realism statistics', 'Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column '
+                        'is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera '
+                        'slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the '
+                        'output changes with the noise input, relative to the real noise level. Change is green when closer to 1 '
+                        '(ratios and slopes) or higher (noise use, diversity).',
+                        spec, models, run, base, labels, extra=('Real LR round trip', rt))
 
+
+def matching(emb, runs, labels):
     def off(m):
         return st.mean(m[i][j] for i in range(4) for j in range(4) if i != j)
-    vals = []
-    for label, key in arms:
-        d = e['models'][key]
+    rows = [['Hand-cropped references (target)', f'{off(emb["ref_ref"]):.3f}', '—', '—', '—', '—']]
+    for r in runs:
+        d = emb['models'][r['emb']]
         own = st.mean(d['gen_ref'][i][i] for i in range(4))
-        other = off(d['gen_ref'])
-        vals.append((label, off(d['gen_gen']), own, other, own - other, d['top1_matched_ref']))
-    b = best_marks([v[5] for v in vals], 'max')
-    rows = [[lab, f'{gg:.3f}', f'{own:.3f}', f'{oth:.3f}', f'{gap:+.3f}', (f'<strong>{t * 100:.0f}%</strong>' if i == b else f'{t * 100:.0f}%')]
-            for i, (lab, gg, own, oth, gap, t) in enumerate(vals)]
-    return dict(title=f'Degradation matching ({encoder} on the hand-cropped references)',
-                headers=['Experiment', 'Output vs output', 'Own reference', 'Other references', 'Gap ↑', 'Own ranked closest ↑'],
-                rows=rows, note=f'3 HR crops × 4 references × 2 seeds, native 64 px. The four references are {off(e["ref_ref"]):.3f} similar '
-                'to each other, so outputs should spread about as much. "Own ranked closest" is chance at 25%; lowdeg2 and highdeg2 '
+        oth = off(d['gen_ref'])
+        rows.append([labels[r['key']], f'{off(d["gen_gen"]):.3f}', f'{own:.3f}', f'{oth:.3f}', f'{own - oth:+.3f}',
+                     f'{d["top1_matched_ref"] * 100:.0f}%'])
+    rows[1][0] = f'<strong>{rows[1][0]}</strong>'
+    return dict(title='Degradation matching (hand-cropped references, DEResNet cosine similarity)',
+                headers=['', 'Output vs output', 'Output vs own reference', 'Output vs other references', 'Gap ↑', 'Own ranked closest ↑'],
+                rows=rows, note='3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be '
+                'near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; lowdeg2 and highdeg2 '
                 'are near twins (0.98), so 100% is not reachable.')
 
 
-def matrix_table(title, m, names, note=''):
-    return dict(title=title, headers=[''] + names, rows=[[names[i]] + [f'{v:.3f}' for v in row] for i, row in enumerate(m)], note=note)
+def save(src, dst, width):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    im = Image.open(src).convert('RGB')
+    if im.width > width:
+        im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
+    im.save(dst, quality=85, optimize=True)
+    return str(dst.relative_to(PAGE))
 
 
-def figure(ev, src, name, caption):
-    OUT.joinpath('img').mkdir(parents=True, exist_ok=True)
-    im = Image.open(ev / src).convert('RGB')
-    if im.width > 1500:
-        im = im.resize((1500, round(im.height * 1500 / im.width)), Image.LANCZOS)
-    im.save(OUT / 'img' / f'{name}.jpg', quality=88, optimize=True)
-    return dict(src=f'assets/lrgen/img/{name}.jpg', caption=caption)
+def visuals(ev, run, rid):
+    key = run['key']
+    out = {'sweep': [], 'hand': []}
+    sw = ev / f'{P}{key}_s0_reference_sweep_textured'
+    if (sw / 'manifest.json').exists():
+        man = json.loads((sw / 'manifest.json').read_text())
+        refs = ', '.join(r['capture_id'] for r in man['references'])
+        out['sweep_note'] = (f'Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR '
+                             f'crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references '
+                             f'({refs}). The same photos and references are used for every run, so tabs can be compared directly.')
+        for i, s in enumerate(man['sources']):
+            f = sw / f'HR_{i:02d}_x4' / 'comparison.png'
+            if f.exists():
+                out['sweep'].append(dict(src=save(f, OUT / 'img' / rid / f'sweep_{i}.jpg', 900), caption=s['image_id'].replace('_x4', '')))
+    else:
+        out['sweep_note'] = 'The textured reference sweep has not been run for this checkpoint yet.'
+    for s in (0, 1):
+        f = ev / HAND[run['size']] / f'grid_{P}{key}_s{s}.png'
+        if f.exists():
+            out['hand'].append(dict(src=save(f, OUT / 'img' / rid / f'hand_s{s}.jpg', 1200), caption=f'Seed {s}'))
+    out['hand_note'] = ('Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references '
+                        '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
+    if run['size'] == 128:
+        out['hand_note'] += (' This run was trained with 128 px references, so the 64 px hand crops are smaller than anything it saw '
+                             'in training.')
+    if not out['hand']:
+        out['hand_note'] = 'The hand-crop sweep is not available for this run.'
+    return out
 
 
 def main():
@@ -129,126 +300,49 @@ def main():
     ap.add_argument('--work-dir', default='/scratch/suleymanyildirim22/lr_generation_work')
     ev = Path(ap.parse_args().work_dir) / 'evaluations'
     models, floor, emb = load(ev)
-    hc = 'hand_crops_nref64_last'
-    refs = ['lowdeg', 'lowdeg2', 'highdeg', 'highdeg2']
-    n = 'nref64_deresnet_nlpips'
-    tex = lambda run, hr: f'{P}{run}_reference_sweep_textured/HR_{hr:02d}_x4/comparison.png'
+    ids = {r['key']: f'run{i + 1}' for i, r in enumerate(RUNS)}
+    labels = {k: f'Run {v[3:]}' for k, v in ids.items()}
+    byk = {r['key']: r for r in RUNS}
+    shutil.rmtree(OUT / 'img', ignore_errors=True)
+    runs = []
+    for r in RUNS:
+        base = byk.get(r['base'])
+        tables = [quality(models, r, base, labels), realism(models, r, base, labels, floor)]
+        if r['emb']:
+            tables.append(matching(emb, [r] + ([base] if base and base['emb'] else []), labels))
+        runs.append(dict(id=ids[r['key']], name=labels[r['key']], title=r['title'], summary=r['summary'], purpose=r['purpose'],
+                         checkpoint=f'{P}{r["key"]}_s0, _s1', variables=r['vars'],
+                         compared_to=(f'{labels[base["key"]]} · {base["title"]}' if base else 'none (baseline)'),
+                         findings=r['findings'], verdict=r['verdict'], tables=tables, visuals=visuals(ev, r, ids[r['key']])))
 
-    experiments = [
-        dict(id='lpips', date='2026-11-07', title='Which perceptual loss: grid, native or none?',
-             summary='The same X5-conditioned generator trained with LPIPS on the 256 px HR grid, with LPIPS on the native 64 px LR, '
-                     'without LPIPS, and with grid LPIPS plus a discriminator.',
-             purpose='Grid metrics had rejected native LPIPS, but only the native LR output is used. Losses that act only at native size '
-                     'leave the content inside each 4×4 block free, which grid metrics punish even though it never reaches the LR.',
-             setup=[['Data', 'DRealSR ×4 only, camera-balanced'], ['Encoder', 'X5 (frozen, 128-d), 128 px native reference'],
-                    ['Base losses', 'native low-pass MSE 1.0, native PSD (YCbCr) 0.1'], ['Steps', '50k, body unfrozen at 10k'],
-                    ['Evaluation', '744 test crops, last checkpoint, native 64 px output']],
-             tables=[quality_table(models, [('Grid LPIPS 2.0', 'nref_x5'), ('Native LPIPS 2.0', 'nref_x5_nlpips'),
-                                            ('No LPIPS', 'nref_x5_nolpips'), ('Grid LPIPS + discriminator 0.02', 'nref_x5_gan002')]),
-                     realism_table(models, [('Grid LPIPS 2.0', 'nref_x5'), ('Native LPIPS 2.0', 'nref_x5_nlpips'),
-                                            ('No LPIPS', 'nref_x5_nolpips'), ('Grid LPIPS + discriminator 0.02', 'nref_x5_gan002')], floor)],
-             findings=['Native LPIPS is best on LPIPS and DISTS on both seeds; on FID it ties with the discriminator run (37.5 vs 37.4).',
-                       'Removing LPIPS is clearly worse (FID about 47 vs 38), although its outputs vary most with the noise input.',
-                       'The discriminator gives the best camera-detail slope and uses the noise input most, at a small PSNR cost.'],
-             verdict='Use native LPIPS. Grid metrics were misleading for native-only losses.'),
-        dict(id='refsize', date='2026-11-07', title='Reference size: 64 px vs 128 px (X5)',
-             summary='The X5 encoder sees the centre 64 px of the 128 px native reference instead of all of it.',
-             purpose='Hand-picked references are small; check how much is lost when the reference is 64 px (256 px of HR area).',
-             setup=[['Encoder', 'X5, native reference, ref_native_size 64 vs 128'], ['Losses', 'grid LPIPS 2.0, native low-pass MSE, native PSD'],
-                    ['Data', 'DRealSR ×4']],
-             tables=[quality_table(models, [('128 px reference', 'nref_x5'), ('64 px reference', 'nref64_x5')]),
-                     realism_table(models, [('128 px reference', 'nref_x5'), ('64 px reference', 'nref64_x5')], floor)],
-             findings=['Quality is within seed noise; training loss was about 5% higher with 64 px.',
-                       'The 64 px reference reproduces slightly less of the per-camera detail spread.'],
-             verdict='64 px references are usable at a small cost.'),
-        dict(id='encoder', date='2026-11-07', title='Degradation encoder: DEResNet vs X5',
-             summary='The frozen DEResNet (S3Diff, 256-d) replaces X5 as the degradation encoder, at 128 px and 64 px references.',
-             purpose='X5 sees the hand-cropped references as almost identical; DEResNet separates them more. Does the generator benefit?',
-             setup=[['Losses', 'grid LPIPS 2.0, native low-pass MSE, native PSD'], ['Data', 'DRealSR ×4']],
-             tables=[quality_table(models, [('X5, 128 px', 'nref_x5'), ('X5, 64 px', 'nref64_x5'), ('DEResNet, 128 px', 'nref_deresnet'),
-                                            ('DEResNet, 64 px', 'nref64_deresnet')]),
-                     realism_table(models, [('X5, 128 px', 'nref_x5'), ('X5, 64 px', 'nref64_x5'), ('DEResNet, 128 px', 'nref_deresnet'),
-                                            ('DEResNet, 64 px', 'nref64_deresnet')], floor)],
-             findings=['DEResNet and X5 tie within seed noise at both reference sizes.',
-                       'Neither encoder makes the generator transfer noise or JPEG; outputs follow mainly blur.'],
-             verdict='No reason to switch encoders on these metrics alone.'),
-        dict(id='handcrops', date='2026-11-07', title='Hand-cropped references: what the encoders see',
-             summary='Four hand-cropped 64 px LR references (two labelled low degradation, two high) applied to three hand-cropped HR '
-                     'crops, with fixed noise per HR.',
-             purpose='Check whether the generator follows the user-labelled degradation, and whether the encoders can tell the references apart.',
-             setup=[['References', ', '.join(refs) + ' (64×64)'], ['HR inputs', 'hr, hr2, hr3 (256×256)'], ['Models', 'X5 64 px, DEResNet 64 px']],
-             tables=[matrix_table('X5 cosine similarity between the references', emb['X5']['ref_ref'], refs, 'X5 sees all four as almost the same.'),
-                     matrix_table('DEResNet cosine similarity between the references', emb['DEResNet']['ref_ref'], refs,
-                                  'DEResNet separates them more, but part of the spread is image content, not degradation.')],
-             figures=[figure(ev, f'{hc}/grid_{P}nref64_x5_s0.png', 'handcrop_x5_64', 'X5 64 px model on the hand crops (seed 0)'),
-                      figure(ev, f'{hc}/grid_{P}nref64_deresnet_s0.png', 'handcrop_deresnet_64', 'DEResNet 64 px model on the hand crops (seed 0)')],
-             findings=['Outputs follow how blurry the reference is (lowdeg2 softest, highdeg sharpest), not the user labels.',
-                       'Noise and JPEG artefacts of the references are not transferred.',
-                       'A downscaled HR with no degradation scores up to 0.93 against a reference of similar content, so DEResNet similarity mixes content and degradation.'],
-             verdict='The encoders separate references mainly by blur; the generator responds to that one axis.'),
-        dict(id='allnative', date='2026-11-08', title='All-native DEResNet 64 px, with and without a discriminator',
-             summary='Every loss at native resolution (LPIPS moved to the native LR) with the DEResNet 64 px reference, then a native '
-                     'discriminator added on top.',
-             purpose='Repeat the native-LPIPS gain with DEResNet, and test whether a discriminator adds realism.',
-             setup=[['Encoder', 'DEResNet, 64 px native reference'], ['Losses', 'native low-pass MSE 1.0, native LPIPS 2.0, native PSD 0.1'],
-                    ['Discriminator', 'native, weight 0.02, lr 1e-4, from 10k steps']],
-             tables=[quality_table(models, [('Grid LPIPS (reference)', 'nref64_deresnet'), ('All-native', n), ('All-native + discriminator', f'{n}_gan002')]),
-                     realism_table(models, [('Grid LPIPS (reference)', 'nref64_deresnet'), ('All-native', n), ('All-native + discriminator', f'{n}_gan002')], floor),
-                     matching_table(emb, [('Grid LPIPS (reference)', 'grid LPIPS'), ('All-native', 'native LPIPS'), ('All-native + discriminator', 'native LPIPS + disc')])],
-             figures=[figure(ev, f'{hc}/grid_{P}{n}_s0.png', 'handcrop_allnative', 'All-native on the hand crops (seed 0)'),
-                      figure(ev, f'{hc}/grid_{P}{n}_gan002_s0.png', 'handcrop_allnative_gan', 'All-native + discriminator on the hand crops (seed 0)')],
-             findings=['All-native beats grid LPIPS on both seeds: LPIPS −7%, FID about 2.5 points better.',
-                       'The discriminator matches per-camera detail much better (slope about 0.97) and uses the noise input more, with FID unchanged.',
-                       'Neither makes outputs follow the reference: own reference ranked closest only 25% of the time (chance).'],
-             verdict='All-native is the best on quality; adding the discriminator is the best on realism.'),
-        dict(id='degnce', date='2026-11-08', title='Contrastive degradation loss (soft-target InfoNCE)',
-             summary='Each HR crop is generated with four references from the batch (same noise). For each reference, DEResNet must pick the '
-                     'output it produced among those four; near-identical references share the target. Tried at weights 0.02, 0.05 and 0.1, '
-                     'and at 0.05 and 0.1 with the discriminator.',
-             purpose='Outputs did not follow their reference. Comparing outputs that share the same HR content means content cannot decide '
-                     'the answer, only degradation can.',
-             setup=[['Base', 'all-native DEResNet 64 px'], ['Loss', 'w_deg_nce 0.02 / 0.05 / 0.1, τ = 0.1, soft-target τ_t = 0.05, K = 4'],
-                    ['Schedule', 'from 10k steps, ramped over 1k'], ['Discriminator', 'native, weight 0.02 (where marked)'],
-                    ['Code', 'hr2lr/losses.py deg_nce_soft, hr2lr/train.py _deg_nce']],
-             tables=[quality_table(models, [('All-native', n), ('+ discriminator', f'{n}_gan002'), ('+ deg 0.02', f'{n}_nce002'),
-                                            ('+ deg 0.05', f'{n}_nce005'), ('+ deg 0.1', f'{n}_nce01'), ('+ deg 0.05 + disc', f'{n}_nce005_gan002'),
-                                            ('+ deg 0.1 + disc', f'{n}_nce01_gan002')]),
-                     realism_table(models, [('All-native', n), ('+ discriminator', f'{n}_gan002'), ('+ deg 0.02', f'{n}_nce002'),
-                                            ('+ deg 0.05', f'{n}_nce005'), ('+ deg 0.1', f'{n}_nce01'), ('+ deg 0.05 + disc', f'{n}_nce005_gan002'),
-                                            ('+ deg 0.1 + disc', f'{n}_nce01_gan002')], floor),
-                     matching_table(emb, [('All-native', 'native LPIPS'), ('+ discriminator', 'native LPIPS + disc'),
-                                          ('+ deg 0.02', 'native LPIPS + deg NCE 0.02'), ('+ deg 0.05', 'native LPIPS + deg NCE 0.05'),
-                                          ('+ deg 0.1', 'native LPIPS + deg NCE 0.1'), ('+ deg 0.05 + disc', 'native LPIPS + deg NCE 0.05 + disc'),
-                                          ('+ deg 0.1 + disc', 'native LPIPS + deg NCE 0.1 + disc')])],
-             figures=[figure(ev, f'{hc}/grid_{P}{n}_nce01_s0.png', 'handcrop_nce01', 'Degradation loss 0.1 on the hand crops (seed 0)'),
-                      figure(ev, f'{hc}/grid_{P}{n}_nce01_gan002_s0.png', 'handcrop_nce01_gan', 'Degradation loss 0.1 + discriminator on the hand crops (seed 0)')],
-             findings=['The loss is the only change that makes outputs follow their reference: up to 54% own-reference ranking vs 25%, with output spread close to the references.',
-                       'It costs quality at every weight; 0.02 already costs about 3 FID points with no matching gain.',
-                       'The discriminator recovers part of the cost and restores noise-input use: 0.1 + disc keeps 54% matching with FID 40.5 vs 41.8 alone.'],
-             verdict='A trade-off: all-native for quality, degradation loss 0.1 + discriminator for reference-following.'),
-        dict(id='sweep', date='2026-11-08', title='Textured reference sweep and a stripe artefact',
-             summary='The DRealSR reference sweep now keeps the least flat of 16 random crops per photo (--texture-candidates 16, protocol '
-                     'v2_textured), over 6 test photos; the old sweep often landed on blank walls.',
-             purpose='Look at how outputs change with the reference on textured content, and find where fine stripes come from.',
-             setup=[['Sweep', 'hr2lr.reference_sweep, 6 sources, 2 cross-capture references + the matched one'],
-                    ['Models', 'all-native, + discriminator, + deg 0.1, + deg 0.1 + discriminator (seed 0)']],
-             figures=[figure(ev, tex(f'{n}_nce01_gan002_s0', 5), 'sweep_grass_nce01_gan', 'Grass, degradation loss 0.1 + discriminator'),
-                      figure(ev, tex(f'{n}_s0', 5), 'sweep_grass_allnative', 'Grass, all-native'),
-                      figure(ev, tex(f'{n}_nce01_s0', 0), 'sweep_wall_nce01', 'Flat wall, degradation loss 0.1'),
-                      figure(ev, tex(f'{n}_s0', 0), 'sweep_wall_allnative', 'Flat wall, all-native')],
-             findings=['Faint horizontal stripes on flat regions appear in all-native too, not only with the degradation loss or the discriminator; the grid-LPIPS model was smooth.',
-                       'Likely cause (not yet confirmed): with every loss at native size, nothing constrains the pattern inside each 4×4 block.',
-                       'With the degradation loss, the Canon reference makes the grass much more contrasty; with the striped-fabric reference a faint woven texture appears, which looks like reference content leaking in.'],
-             verdict='Next: test the stripes with a small grid-level loss or a blurred downscale, and check content leakage with same-scene ×2/×3/×4 references.'),
-    ]
-    glossary = [['LPIPS / DISTS', 'perceptual difference between generated and real native LR of the same crop (lower is better)'],
-                ['FID', f'distribution distance of generated vs real native LRs (lower is better; round-trip floor {floor["fid"]:.2f})'],
+    def mean(r, k):
+        return st.mean(m['overall'][k] for m in seeds(models, r['key']))
+
+    def short(v):
+        return {'LPIPS 2.0 on the 256 px grid': 'grid LPIPS', 'LPIPS 2.0 on the native 64 px output': 'native LPIPS',
+                'native LPIPS 2.0': 'native LPIPS'}.get(v, v)
+    overview = dict(title='All runs at a glance (mean of both seeds)',
+                    headers=['Run', 'Encoder', 'Reference', 'Perceptual loss', 'Discriminator', 'Degradation loss', 'LPIPS ↓', 'DISTS ↓',
+                             'FID ↓', 'Own ranked closest ↑'],
+                    rows=[[f'<a href="#{ids[r["key"]]}">{labels[r["key"]]}</a>', r['vars'][0][1].split(' (')[0], r['vars'][1][1].split(' (')[0],
+                           short(r['vars'][2][1]), 'yes' if r['vars'][3][1] != 'none' else '—',
+                           '—' if r['vars'][4][1] == 'none' else r['vars'][4][1].split('weight ')[1].split(',')[0],
+                           f'{mean(r, "native_lpips"):.4f}', f'{mean(r, "native_dists"):.4f}', f'{mean(r, "native_fid"):.1f}',
+                           f'{emb["models"][r["emb"]]["top1_matched_ref"] * 100:.0f}%' if r['emb'] else '—'] for r in RUNS],
+                    note='Own ranked closest is measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25%).')
+    glossary = [['LPIPS / DISTS', 'perceptual difference between the generated and the real native LR of the same crop (lower is better)'],
+                ['FID', f'distribution distance between generated and real native LRs (lower is better); the real LR round trip scores {floor["fid"]:.2f}'],
                 ['PSNR', 'pixel agreement with the real LR; rewards smooth outputs, not used for selection'],
-                ['Native', 'the 256 px generator output area-downscaled by 4 to the 64 px LR; all numbers here are native']]
-    data = dict(generated=dt.date.today().isoformat(), glossary=glossary, experiments=experiments)
-    OUT.mkdir(parents=True, exist_ok=True)
+                ['Noise / detail / HF power / saturation ratio', 'the statistic of generated LRs divided by that of real LRs, per camera, then averaged (1 = real)'],
+                ['Camera slope', 'regression slope of generated per-camera values on real per-camera values (1 = cameras differ as much as in real data)'],
+                ['Noise use', 'standard deviation of the output across noise draws on flat regions, divided by the real noise level'],
+                ['Own ranked closest', 'share of outputs whose DEResNet embedding is closest to the reference they were generated with'],
+                ['Native', 'the 256 px generator output area-downscaled by 4 to the 64 px LR; all numbers on this page are native']]
+    data = dict(generated=dt.date.today().isoformat(), shared=SHARED, overview=overview, glossary=glossary, runs=runs)
     (OUT / 'data.json').write_text(json.dumps(data, indent=1, ensure_ascii=False) + '\n')
-    print(f'wrote {OUT / "data.json"} with {len(experiments)} experiments')
+    print(f'wrote {OUT / "data.json"}: {len(runs)} runs')
+    for r in runs:
+        print(r['id'], 'sweep', len(r['visuals']['sweep']), 'hand', len(r['visuals']['hand']))
 
 
 if __name__ == '__main__':
