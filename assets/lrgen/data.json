@@ -212,9 +212,9 @@
     "native LPIPS",
     "yes",
     "0.1",
-    "0.0327",
-    "0.1090",
-    "38.9",
+    "0.0329",
+    "0.1085",
+    "38.5",
     "25%"
    ]
   ],
@@ -3559,7 +3559,7 @@
    "id": "run15",
    "name": "Run 15",
    "title": "Run 14 with the X5 encoder (conditioning and degradation loss)",
-   "summary": "Run 14 with DEResNet replaced by X5 everywhere: X5 encodes the reference and X5 embeddings of the output and the references define the degradation loss. Seed 1 is still training; numbers are seed 0 only until it finishes.",
+   "summary": "Run 14 with DEResNet replaced by X5 everywhere: X5 encodes the reference and X5 embeddings of the output and the references define the degradation loss.",
    "purpose": "Runs 10 and 14 copy reference texture into the output (a lattice on flat walls and doubled edges with the panasonic_187 reference). Test whether this comes from DEResNet mixing content into its degradation embedding.",
    "checkpoint": "DRealSR_x4_S_nref64_x5_nlpips_nce01_gan002_s0, _s1",
    "variables": [
@@ -3586,8 +3586,8 @@
    ],
    "compared_to": "Run 14 · All-native + degradation loss 0.1 + discriminator",
    "findings": [
-    "The texture leak is gone. Fine texture on flat regions with the panasonic_187 reference (high-pass std, real LR 2.41 for comparison): 3.13, the same as Run 8 without a degradation loss (3.08); Run 14: 3.62.",
-    "Better quality than Run 14: LPIPS 0.0327 vs 0.0385, FID 38.9 vs 40.5 (seed 0).",
+    "The texture leak is gone. Fine texture on flat regions with the panasonic_187 reference (high-pass std, seed 0 sweep, real LR 2.41 for comparison): 3.13, the same as Run 8 without a degradation loss (3.08); Run 14: 3.62.",
+    "Better quality than Run 14 on both seeds: LPIPS 0.0329 vs 0.0385, FID 38.5 vs 40.5.",
     "Reference following is weak: outputs change little between references, much like Run 8. Judged by DEResNet the own reference is ranked closest 25% of the time (chance), vs 54% for Run 14; judged by X5 it is 50%, vs 33–42% for the other runs.",
     "X5 sees the four hand-cropped references as nearly identical (cosine 0.98), so the loss has little to separate."
    ],
@@ -3607,34 +3607,34 @@
       [
        "LPIPS ↓",
        "0.0327",
-       "pending",
-       "<strong>0.0327</strong>",
+       "0.0330",
+       "<strong>0.0329</strong>",
        "0.0385",
-       "<span class=\"up\">-0.0059</span>"
+       "<span class=\"up\">-0.0057</span>"
       ],
       [
        "DISTS ↓",
        "0.1090",
-       "pending",
-       "<strong>0.1090</strong>",
+       "0.1081",
+       "<strong>0.1085</strong>",
        "0.1165",
-       "<span class=\"up\">-0.0076</span>"
+       "<span class=\"up\">-0.0080</span>"
       ],
       [
        "FID ↓",
        "38.88",
-       "pending",
-       "<strong>38.88</strong>",
+       "38.07",
+       "<strong>38.47</strong>",
        "40.51",
-       "<span class=\"up\">-1.63</span>"
+       "<span class=\"up\">-2.03</span>"
       ],
       [
        "PSNR (dB)",
        "32.57",
-       "pending",
-       "<strong>32.57</strong>",
+       "32.67",
+       "<strong>32.62</strong>",
        "32.22",
-       "<span>+0.36</span>"
+       "<span>+0.41</span>"
       ]
      ],
      "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
@@ -3654,80 +3654,80 @@
       [
        "Noise ratio",
        "0.935",
-       "pending",
-       "<strong>0.935</strong>",
+       "0.943",
+       "<strong>0.939</strong>",
        "0.877",
-       "<span class=\"up\">+0.058</span>",
+       "<span class=\"up\">+0.062</span>",
        "0.92"
       ],
       [
        "Detail ratio",
        "0.955",
-       "pending",
-       "<strong>0.955</strong>",
+       "1.005",
+       "<strong>0.980</strong>",
        "0.887",
-       "<span class=\"up\">+0.068</span>",
+       "<span class=\"up\">+0.093</span>",
        "0.94"
       ],
       [
        "HF power ratio",
        "1.073",
-       "pending",
-       "<strong>1.073</strong>",
+       "1.040",
+       "<strong>1.057</strong>",
        "0.954",
-       "<span class=\"down\">+0.120</span>",
+       "<span class=\"down\">+0.103</span>",
        "0.85"
       ],
       [
        "Saturation ratio",
        "0.934",
-       "pending",
-       "<strong>0.934</strong>",
+       "0.974",
+       "<strong>0.954</strong>",
        "0.957",
-       "<span class=\"down\">-0.023</span>",
+       "<span class=\"down\">-0.003</span>",
        "1.00"
       ],
       [
        "Noise camera slope",
        "0.754",
-       "pending",
-       "<strong>0.754</strong>",
+       "0.817",
+       "<strong>0.785</strong>",
        "0.734",
-       "<span class=\"up\">+0.020</span>",
+       "<span class=\"up\">+0.052</span>",
        "0.92"
       ],
       [
        "Detail camera slope",
        "0.936",
-       "pending",
-       "<strong>0.936</strong>",
+       "0.928",
+       "<strong>0.932</strong>",
        "0.966",
-       "<span class=\"down\">-0.030</span>",
+       "<span class=\"down\">-0.034</span>",
        "0.94"
       ],
       [
        "HF camera slope",
        "0.599",
-       "pending",
-       "<strong>0.599</strong>",
+       "0.661",
+       "<strong>0.630</strong>",
        "0.423",
-       "<span class=\"up\">+0.175</span>",
+       "<span class=\"up\">+0.206</span>",
        "0.85"
       ],
       [
        "Noise use (z_std ÷ real noise) ↑",
        "0.494",
-       "pending",
-       "<strong>0.494</strong>",
+       "0.506",
+       "<strong>0.500</strong>",
        "0.388",
-       "<span class=\"up\">+0.106</span>",
+       "<span class=\"up\">+0.112</span>",
        "—"
       ],
       [
        "Diversity (LPIPS between noise draws) ↑",
        "0.0146",
-       "pending",
-       "<strong>0.0146</strong>",
+       "0.0147",
+       "<strong>0.0147</strong>",
        "0.0123",
        "<span class=\"up\">+0.0023</span>",
        "—"
@@ -3756,10 +3756,10 @@
       ],
       [
        "<strong>Run 15</strong>",
-       "0.913",
-       "0.824",
-       "0.765",
-       "+0.060",
+       "0.922",
+       "0.807",
+       "0.757",
+       "+0.050",
        "25%"
       ],
       [
@@ -3805,6 +3805,10 @@
      {
       "src": "assets/lrgen/img/run15/hand_s0.jpg",
       "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run15/hand_s1.jpg",
+      "caption": "Seed 1"
      }
     ],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",

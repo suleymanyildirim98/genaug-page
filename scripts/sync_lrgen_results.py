@@ -168,12 +168,12 @@ RUNS = [
                ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
                ['Degradation loss', 'soft-target InfoNCE, weight 0.1, on L2-normalised X5 embeddings']],
          summary='Run 14 with DEResNet replaced by X5 everywhere: X5 encodes the reference and X5 embeddings of the output and '
-                 'the references define the degradation loss. Seed 1 is still training; numbers are seed 0 only until it finishes.',
+                 'the references define the degradation loss.',
          purpose='Runs 10 and 14 copy reference texture into the output (a lattice on flat walls and doubled edges with the '
                  'panasonic_187 reference). Test whether this comes from DEResNet mixing content into its degradation embedding.',
          findings=['The texture leak is gone. Fine texture on flat regions with the panasonic_187 reference (high-pass std, '
-                   'real LR 2.41 for comparison): 3.13, the same as Run 8 without a degradation loss (3.08); Run 14: 3.62.',
-                   'Better quality than Run 14: LPIPS 0.0327 vs 0.0385, FID 38.9 vs 40.5 (seed 0).',
+                   'seed 0 sweep, real LR 2.41 for comparison): 3.13, the same as Run 8 without a degradation loss (3.08); Run 14: 3.62.',
+                   'Better quality than Run 14 on both seeds: LPIPS 0.0329 vs 0.0385, FID 38.5 vs 40.5.',
                    'Reference following is weak: outputs change little between references, much like Run 8. Judged by '
                    'DEResNet the own reference is ranked closest 25% of the time (chance), vs 54% for Run 14; judged by '
                    'X5 it is 50%, vs 33–42% for the other runs.',
