@@ -27,7 +27,8 @@ P = 'DRealSR_x4_S_'
 REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_deresnet64_realism',
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
-           'DRealSR_x4_S_native_metrics_x5nce_s1_realism']
+           'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
+                                                            for t in ('ownonly', 'capmean') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -180,6 +181,36 @@ RUNS = [
                    'X5 sees the four hand-cropped references as nearly identical (cosine 0.98), so the loss has little to separate.'],
          verdict='Changing the encoder removes the artifacts, but mostly because the X5 loss asks for very little reference '
                  'dependence. It does not give artifact-free reference following.'),
+    dict(key=f'{N}_nce01_gan002_ownonly', size=64, emb='deg NCE 0.1 + disc, own-only target', base=f'{N}_nce01_gan002',
+         title='Run 14 with an own-reference-only degradation loss',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, own-reference question only, scored against the target LR']],
+         summary='As Run 14, but the degradation loss asks only "which of the 4 outputs was made with the own reference?", and '
+                 'scores it against the DEResNet embedding of the target LR instead of the reference crop. The 3 cross-reference '
+                 'outputs are only distractors.',
+         purpose='The target LR shares the reference\'s capture but not its content, so copying reference texture should no '
+                 'longer raise the score.',
+         findings=['The texture leak is about halved: flat-region fine texture with panasonic_187 3.37 (Run 8: 3.08, Run 14: 3.62), '
+                   'but a faint lattice is still visible on the flat wall.',
+                   'Reference following drops from 54% to 42% own ranked closest (chance 25%); output-vs-output similarity 0.87 '
+                   '(Run 14: 0.82, references: 0.76).',
+                   'Quality between Run 8 and Run 14: LPIPS 0.0360, FID 40.0.'],
+         verdict='Partial fix: less leak, less reference following. The leak is not fully removed.'),
+    dict(key=f'{N}_nce01_gan002_capmean', size=64, emb='deg NCE 0.1 + disc, capture-mean target', base=f'{N}_nce01_gan002',
+         title='Run 14 with capture-mean degradation targets',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, each reference scored against the mean embedding of its capture']],
+         summary='As Run 14, but each reference\'s target is the mean DEResNet embedding of about 260 crops from the other, '
+                 'non-overlapping patches of its capture, instead of the reference crop.',
+         purpose='Averaging over many crops of the same photo keeps the degradation and removes the specific texture that leaked.',
+         findings=['The averaged targets barely separate cameras (cosine 0.93 same camera vs 0.92 different camera), so the loss '
+                   'asks for little.',
+                   'Reference following is lost: 21% own ranked closest (chance 25%); output-vs-output similarity 0.96, like Run 8.',
+                   'Flat-region fine texture with panasonic_187 3.36: still above Run 8 (3.08), with a faint diagonal pattern on the wall.',
+                   'LPIPS 0.0350, FID 39.1.'],
+         verdict='Does not work: averaging removes the degradation differences along with the content.'),
 ]
 
 
@@ -309,7 +340,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–15).')
+                            'See the 64 px runs (Run 5 and Runs 7–17).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
