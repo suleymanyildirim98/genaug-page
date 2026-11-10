@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -211,6 +211,24 @@ RUNS = [
                    'Flat-region fine texture with panasonic_187 3.36: still above Run 8 (3.08), with a faint diagonal pattern on the wall.',
                    'LPIPS 0.0350, FID 39.1.'],
          verdict='Does not work: averaging removes the degradation differences along with the content.'),
+    dict(key=f'{N}_nce01_gan002_hrneg', size=64, emb='deg NCE 0.1 + disc, HR negative', base=f'{N}_nce01_gan002',
+         title='Run 14 with the reference HR as a negative in the degradation loss',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, plus the reference\'s own HR (downscaled) as an extra negative, '
+                'weighted by how far the reference LR is from its HR']],
+         summary='As Run 14, but each output must also be farther from the DEResNet embedding of the reference\'s clean HR '
+                 '(area-downscaled to native) than from its reference LR. The HR negative is weighted by 1 − cos(ref LR, ref HR) '
+                 '/ 0.1, so it is off for near-clean references.',
+         purpose='The HR and LR of the reference share content and differ only in degradation, so pushing away from the HR '
+                 'should reward the degradation and not the content.',
+         findings=['The leak gets worse: flat-region fine texture with panasonic_187 4.29 (Run 14: 3.62, Run 8: 3.08, real LR: 2.41). '
+                   'The montage shows bright fragments of the reference copied into the output corners.',
+                   'Strongest reference following of all runs: 62% own ranked closest (Run 14: 54%, chance 25%); '
+                   'output-vs-output similarity 0.74.',
+                   'Worst quality of the DEResNet runs on both seeds: LPIPS 0.0452, FID 43.7 (Run 14: 0.0385, 40.5).'],
+         verdict='Does not work: the HR negative pushes the outputs further from clean content, so the generator copies more of '
+                 'the reference, not less.'),
 ]
 
 
@@ -340,7 +358,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–17).')
+                            'See the 64 px runs (Run 5 and Runs 7–18).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
