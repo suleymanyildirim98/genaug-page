@@ -345,18 +345,18 @@ def realism(models, run, base, labels, floor):
 def matching(emb, runs, labels):
     def off(m):
         return st.mean(m[i][j] for i in range(4) for j in range(4) if i != j)
-    rows = [['Hand-cropped references (target)', f'{off(emb["ref_ref"]):.3f}', '—', '—', '—', '—']]
+    rows = [['Hand-cropped references (target)', f'{off(emb["ref_ref"]):.3f}', '—', '—', '—', '—', '—']]
     for r in runs:
         d = emb['models'][r['emb']]
         own = st.mean(d['gen_ref'][i][i] for i in range(4))
         oth = off(d['gen_ref'])
         rows.append([labels[r['key']], f'{off(d["gen_gen"]):.3f}', f'{own:.3f}', f'{oth:.3f}', f'{own - oth:+.3f}',
-                     f'{d["top1_matched_ref"] * 100:.0f}%'])
+                     f'{d["top1_matched_ref"] * 100:.0f}%', f'{d["top2_matched_ref"] * 100:.0f}%'])
     rows[1][0] = f'<strong>{rows[1][0]}</strong>'
     return dict(title='Degradation matching (hand-cropped references, DEResNet cosine similarity)',
-                headers=['', 'Output vs output', 'Output vs own reference', 'Output vs other references', 'Gap ↑', 'Own ranked closest ↑'],
+                headers=['', 'Output vs output', 'Output vs own reference', 'Output vs other references', 'Gap ↑', 'Own ranked closest ↑', 'Own in closest 2 ↑'],
                 rows=rows, note='3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be '
-                'near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; lowdeg2 and highdeg2 '
+                'near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 '
                 'are near twins (0.98), so 100% is not reachable.')
 
 
@@ -430,13 +430,14 @@ def main():
                 'native LPIPS 2.0': 'native LPIPS'}.get(v, v)
     overview = dict(title='All runs at a glance (mean of both seeds)',
                     headers=['Run', 'Encoder', 'Reference', 'Perceptual loss', 'Discriminator', 'Degradation loss', 'LPIPS ↓', 'DISTS ↓',
-                             'FID ↓', 'Own ranked closest ↑'],
+                             'FID ↓', 'Own ranked closest ↑', 'Own in closest 2 ↑'],
                     rows=[[f'<a href="#{ids[r["key"]]}">{labels[r["key"]]}</a>', r['vars'][0][1].split(' (')[0], r['vars'][1][1].split(' (')[0],
                            short(r['vars'][2][1]), 'yes' if r['vars'][3][1] != 'none' else '—',
                            '—' if r['vars'][4][1] == 'none' else r['vars'][4][1].split('weight ')[1].split(',')[0],
                            f'{mean(r, "native_lpips"):.4f}', f'{mean(r, "native_dists"):.4f}', f'{mean(r, "native_fid"):.1f}',
-                           f'{emb["models"][r["emb"]]["top1_matched_ref"] * 100:.0f}%' if r['emb'] else '—'] for r in RUNS],
-                    note='Own ranked closest is measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25%).')
+                           f'{emb["models"][r["emb"]]["top1_matched_ref"] * 100:.0f}%' if r['emb'] else '—',
+                           f'{emb["models"][r["emb"]]["top2_matched_ref"] * 100:.0f}%' if r['emb'] else '—'] for r in RUNS],
+                    note='Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%).')
     glossary = [['LPIPS / DISTS', 'perceptual difference between the generated and the real native LR of the same crop (lower is better)'],
                 ['FID', f'distribution distance between generated and real native LRs (lower is better); the real LR round trip scores {floor["fid"]:.2f}'],
                 ['PSNR', 'pixel agreement with the real LR; rewards smooth outputs, not used for selection'],
