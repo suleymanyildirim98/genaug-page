@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -262,6 +262,33 @@ RUNS = [
                    'Better quality than Run 14: LPIPS 0.0364, FID 39.7 (Run 14: 0.0385, 40.5); highest output diversity of the '
                    'DEResNet runs (0.016).'],
          verdict='Best trade-off so far: Run 12-level reference following without its leak. Candidate base for the next runs.'),
+    dict(key=f'{N}_nce02_gan002_delta', size=64, emb='deg NCE 0.2 + disc, delta target', base=f'{N}_nce01_gan002_delta',
+         title='Run 20 with the delta-target weight doubled (0.2)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.2, delta target normalize(J(r) − J(h))']],
+         summary='As Run 20, with the degradation loss weight raised from 0.1 to 0.2.',
+         purpose='With the delta target, copying reference content no longer pays, so a stronger weight should buy reference '
+                 'following without bringing the leak back.',
+         findings=['No extra leak: flat-region fine texture with panasonic_187 3.23 on seed 0 (Run 20: 3.22, Run 14: 3.62, real LR: '
+                   '2.41); the montage shows only faint horizontal streaks on the flat wall, no lattice.',
+                   'Stronger reference following: matched minus unmatched similarity 0.16 (Run 20: 0.11, Run 14: 0.18); own in '
+                   'closest 2 88% (Run 20: 67%, Run 14: 100%); output-vs-output similarity 0.84.',
+                   'Quality drops: LPIPS 0.0414, FID 43.0 (Run 20: 0.0364, 39.7; Run 14: 0.0385, 40.5).'],
+         verdict='Following close to Run 14 without its leak, but quality falls below Run 14.'),
+    dict(key=f'{N}_nce05_gan002_delta', size=64, emb='deg NCE 0.5 + disc, delta target', base=f'{N}_nce01_gan002_delta',
+         title='Run 20 with the delta-target weight at 0.5',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.5, delta target normalize(J(r) − J(h))']],
+         summary='As Run 20, with the degradation loss weight raised from 0.1 to 0.5.',
+         purpose='Find where the delta target stops paying off as its weight grows.',
+         findings=['Strongest following of the delta runs: matched minus unmatched similarity 0.18 (Run 14: 0.18); own ranked '
+                   'closest 63%, own in closest 2 88%; output-vs-output similarity 0.79.',
+                   'The leak returns in another form: flat-region fine texture with panasonic_187 4.03 on seed 0 (Run 14: 3.62); the '
+                   'montage shows bright border artefacts on the image edges instead of a lattice.',
+                   'Much worse quality: LPIPS 0.0585, FID 55.9 (Run 20: 0.0364, 39.7).'],
+         verdict='Too strong: the encoder is gamed through border artefacts and quality collapses. Dropped.'),
 ]
 
 
@@ -391,7 +418,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–20).')
+                            'See the 64 px runs (Run 5 and Runs 7–22).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
