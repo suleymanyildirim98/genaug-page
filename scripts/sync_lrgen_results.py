@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -229,6 +229,39 @@ RUNS = [
                    'Worst quality of the DEResNet runs on both seeds: LPIPS 0.0452, FID 43.7 (Run 14: 0.0385, 40.5).'],
          verdict='Does not work: the HR negative pushes the outputs further from clean content, so the generator copies more of '
                  'the reference, not less.'),
+    dict(key=f'{N}_nce005_gan002_hrneg', size=64, emb='deg NCE 0.05 + HR negative 0.05 + disc', base=f'{N}_nce01_gan002',
+         title='Run 18 with the total degradation weight matched to Run 14',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', '0.05 × soft-target InfoNCE + 0.05 × HR negative (total 0.1, as Run 14)']],
+         summary='As Run 18, but both degradation terms at 0.05, so the total degradation weight equals Run 14\'s 0.1 '
+                 '(Run 18 had 0.2).',
+         purpose='Separate the effect of the HR negative from the doubled loss strength of Run 18. Run 12 (soft-target InfoNCE 0.05 '
+                 '+ disc, no HR negative) is the control for the HR term itself.',
+         findings=['Matching the weight explains part of Run 18\'s leak, not all: flat-region fine texture with panasonic_187 3.89 '
+                   '(Run 18: 4.29, Run 14: 3.62, Run 12: 3.44, real LR: 2.41). The montage still shows the lattice and a bright '
+                   'border artefact.',
+                   'Reference following as Run 14: 54% own ranked closest (chance 25%); output-vs-output similarity 0.80.',
+                   'LPIPS 0.0396, FID 41.3: worse than Run 14 (0.0385, 40.5) and Run 12 (0.0351, 39.5).'],
+         verdict='The HR negative itself increases the leak, also at a fair weight. Dropped.'),
+    dict(key=f'{N}_nce01_gan002_delta', size=64, emb='deg NCE 0.1 + disc, delta target', base=f'{N}_nce01_gan002',
+         title='Run 14 with the degradation direction as the target (delta target)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, target normalize(J(r) − J(h)) with h the reference\'s clean HR']],
+         summary='As Run 14, but each reference\'s target is its degradation direction normalize(J(r) − J(h)): the DEResNet '
+                 'embedding of the reference LR minus that of its own HR (area-downscaled). The condition stays E(r), so no HR is '
+                 'needed at inference.',
+         purpose='Copying the reference\'s content raises the similarity to J(r) and J(h) alike, so it no longer raises the score; '
+                 'only moving along the reference\'s LR-versus-HR difference does.',
+         findings=['The leak is gone: flat-region fine texture with panasonic_187 3.22 (Run 9 without degradation loss: 3.23, '
+                   'Run 14: 3.62, real LR: 2.41); no lattice on the flat wall in the montage.',
+                   'Reference following is kept at a moderate level: matched minus unmatched similarity 0.11 (Run 14: 0.18, '
+                   'Run 12: 0.12, Run 8: 0.04); output-vs-output similarity 0.90 (Run 14: 0.82, Run 8: 0.95); own ranked closest 33% '
+                   '(chance 25%; 24 cases, noisy).',
+                   'Better quality than Run 14: LPIPS 0.0364, FID 39.7 (Run 14: 0.0385, 40.5); highest output diversity of the '
+                   'DEResNet runs (0.016).'],
+         verdict='Best trade-off so far: Run 12-level reference following without its leak. Candidate base for the next runs.'),
 ]
 
 
@@ -358,7 +391,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–18).')
+                            'See the 64 px runs (Run 5 and Runs 7–20).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
