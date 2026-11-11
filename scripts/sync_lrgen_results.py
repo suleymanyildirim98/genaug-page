@@ -233,7 +233,7 @@ RUNS = [
          title='Run 18 with the total degradation weight matched to Run 14',
          vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
                ['Discriminator', 'native, weight 0.02'],
-               ['Degradation loss', '0.05 × soft-target InfoNCE + 0.05 × HR negative (total 0.1, as Run 14)']],
+               ['Degradation loss', 'soft-target InfoNCE + HR negative, weight 0.05 + 0.05, total 0.1 as in Run 14']],
          summary='As Run 18, but both degradation terms at 0.05, so the total degradation weight equals Run 14\'s 0.1 '
                  '(Run 18 had 0.2).',
          purpose='Separate the effect of the HR negative from the doubled loss strength of Run 18. Run 12 (soft-target InfoNCE 0.05 '
