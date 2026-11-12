@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -289,6 +289,71 @@ RUNS = [
                    'montage shows bright border artefacts on the image edges instead of a lattice.',
                    'Much worse quality: LPIPS 0.0585, FID 55.9 (Run 20: 0.0364, 39.7).'],
          verdict='Too strong: the encoder is gamed through border artefacts and quality collapses. Dropped.'),
+    dict(key=f'{N}_nce02_gan002_delta_b8', size=64, emb='deg NCE 0.2 + disc, delta target, border 8', base=f'{N}_nce02_gan002_delta',
+         title='Run 21 with the degradation loss on the output interior (border crop)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.2, delta target, on the central 48 px (8 px border dropped)']],
+         summary='As Run 21 (delta 0.2), but outputs and targets are embedded on their central 48 px only, so edge pixels cannot '
+                 'raise the degradation score.',
+         purpose='Run 22 (delta 0.5) gamed the encoder with bright borders. Test whether removing the edges from the loss recovers '
+                 'quality at weight 0.2.',
+         findings=['Quality is not recovered: LPIPS 0.0414, FID 42.2 (Run 21: 0.0414, 43.0; Run 20: 0.0364, 39.7). A check on the '
+                   'existing runs showed the same: Run 21 is 14% worse than Run 20 in LPIPS on the full 64 px, the central 48 px and '
+                   'the central 32 px alike, so the drop is not at the border.',
+                   'Reference following falls back to Run 20\'s level: matched minus unmatched similarity 0.10 (Run 21: 0.16, Run 20: '
+                   '0.11), own in closest 2 63%. Part of Run 21\'s extra following was read from the border.',
+                   'Leak unchanged: flat-region fine texture with panasonic_187 3.21 on seed 0 (Run 20: 3.22).'],
+         verdict='No gain: the border crop removes the extra following but not the quality cost. Dropped.'),
+    dict(key=f'{N}_nce01_gan002_delta_synrec', size=64, emb='delta 0.1 + disc + synthetic recon', base=f'{N}_nce01_gan002_delta',
+         title='Run 20 + synthetic same-content pairs in the reconstruction losses',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE + synthetic reconstruction, weight 0.1 + 1.0, delta target on real batches']],
+         summary='As Run 20, plus synthetic pairs: each step 4 HRs x 4 known degradations (anisotropic blur, x4 area, noise, JPEG; '
+                 'blur range matched to DRealSR). The reference is the degradation applied to another HR, the target the same '
+                 'degradation applied to the input HR; the native losses (low-pass MSE, LPIPS, PSD) are applied against it. The '
+                 'discriminator sees real batches only.',
+         purpose='Teach reference following with an exact target: only applying the reference\'s degradation to the input reaches '
+                 'it, and copying the reference\'s content raises the loss. No encoder in this term.',
+         findings=['Synthetic benchmark (known degradations on test HRs, no encoder): strong following, own target closest 51% '
+                   '(Run 20: 29%, chance 25%), low-pass PSNR to the exact target 39.8 dB (Run 20: 33.8); leak over signal 0.40 '
+                   '(Run 20: 0.73).',
+                   'On real references the following does not improve: matched minus unmatched similarity 0.11 (Run 20: 0.11).',
+                   'Real-data quality: LPIPS 0.0366 (Run 20: 0.0364), FID 41.2 (39.7). Diversity halves (0.008, Run 20: 0.016) and '
+                   'the outputs carry sharper speckled fine detail than the real LR: flat-region fine texture with panasonic_187 '
+                   '3.68 on seed 0 (Run 20: 3.22).'],
+         verdict='Follows synthetic degradations well, but this does not transfer to real references and the outputs get an '
+                 'oversharp synthetic look.'),
+    dict(key=f'{N}_gan002_synrec', size=64, emb='disc + synthetic recon', base=f'{N}_gan002',
+         title='Run 9 + synthetic same-content pairs in the reconstruction losses (no encoder in the loss)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'synthetic reconstruction, weight 1.0, no InfoNCE']],
+         summary='As Run 9 (no degradation loss), plus the synthetic reconstruction term of Run 24. No encoder anywhere in the loss.',
+         purpose='Test whether synthetic pairs alone teach reference following, without the encoder-based loss.',
+         findings=['Synthetic benchmark as Run 24: own target closest 51%, low-pass PSNR 39.6 dB, leak over signal 0.43 (Run 9: 28%, '
+                   '34.2 dB, 0.68).',
+                   'Weak following on real references: matched minus unmatched similarity 0.05 (Run 9: 0.04, Run 20: 0.11); '
+                   'output-vs-output similarity 0.95.',
+                   'Best LPIPS of the new runs, 0.0346, FID 39.9 (Run 9: 0.0336, 37.9); diversity halves (0.009) and flat-region '
+                   'fine texture rises to 3.87 on seed 0 (Run 9: 3.23).'],
+         verdict='Synthetic following does not transfer to real references; the synthetic targets add oversharp texture.'),
+    dict(key=f'{N}_nce01_gan002_delta_synnce', size=64, emb='delta 0.1 + disc + synthetic InfoNCE', base=f'{N}_nce01_gan002_delta',
+         title='Run 20 + synthetic same-content pairs inside the degradation loss only',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE + synthetic InfoNCE, weight 0.1 + 0.1, delta target on real batches']],
+         summary='As Run 20, plus a second soft-target InfoNCE on the same synthetic pairs as Run 24: each output G(x, z, E(r_k)) is '
+                 'scored against J(y_k), the DEResNet embedding of the exact synthetic target. The target has the output\'s own '
+                 'content, so only the degradation can pick the answer. No pixel loss on the synthetic targets.',
+         purpose='Use synthetic pairs only in the degradation loss, keeping the image losses on real data.',
+         findings=['Lowest leak of all runs: flat-region fine texture with panasonic_187 3.13 on seed 0 and 3.03 on seed 1 (Run 20: '
+                   '3.22 / 3.35, Run 9 without degradation loss: 3.23); clean flat wall in the montage. Leak over signal on the '
+                   'synthetic benchmark 0.65 (Run 20: 0.73).',
+                   'Reference following as Run 20: matched minus unmatched similarity 0.11, own in closest 2 67%.',
+                   'Quality as Run 20 or slightly better: LPIPS 0.0357, FID 40.1 (Run 20: 0.0364, 39.7); diversity 0.015.'],
+         verdict='Small but consistent gain over Run 20: less leak at equal following and quality. New best base.'),
 ]
 
 
@@ -418,7 +483,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–22).')
+                            'See the 64 px runs (Run 5 and Runs 7–26).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
