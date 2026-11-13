@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -434,6 +434,54 @@ RUNS = [
                    'with the reference). In training the real-reference output picked the real LR 75% of the time.'],
          verdict='Without cross-image real references the model stops following real references; synthetic comparisons do not '
                  'replace them.'),
+    dict(key=f'{N}_nce01_gan002_hybrid', size=64, emb='hybrid 0.1 + disc', base=f'{N}_nce01_gan002_deltacos',
+         title='Hybrid score: cosine delta minus a spectral transfer distance',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, score = delta cos - spectral distance / d0 (lambda 1)']],
+         summary='As Run 27, with the InfoNCE score cos(delta) - d_spec. d_spec compares the 16-band radial power transfer ratio '
+                 'log10 P(LR)/P(HR down) of the output with that of the reference, weighted by band reliability and gated on flat '
+                 'windows. No synthetic branch.',
+         purpose='Stage 1 of the plan: the hybrid score was the best hand-made score without training (76% top-1 of 11 recipes).',
+         findings=['Real following, delta top-1 of 10: 16.4% (Run 27: 17.8%, Run 20: 22.1%).',
+                   'Quality slightly below Run 27: LPIPS 0.0380, FID 42.4; diversity 0.022; flat-region fine texture 2.59.',
+                   'Hand-crop gap 0.058 (Run 27: 0.088); synthetic benchmark leak over signal 0.65.'],
+         verdict='Failed: no gain in following and a small loss in quality. The hand-made spectral term does not transfer to real references.'),
+    dict(key=f'{N}_nce02_gan002_hybrid', size=64, emb='hybrid 0.2 + disc', base=f'{N}_nce01_gan002_hybrid',
+         title='Run 33 at weight 0.2',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.2, hybrid score']],
+         summary='As Run 33 with the degradation loss at weight 0.2.',
+         purpose='Check whether a stronger hybrid loss helps following.',
+         findings=['Real following, delta top-1 of 10: 17.3% (Run 33: 16.4%).',
+                   'Lower quality: LPIPS 0.0415, FID 44.6. Hand-crop gap 0.068; leak over signal 0.70.'],
+         verdict='Failed: higher weight costs quality for almost no following.'),
+    dict(key=f'{N}_nce01_gan002_critic', size=64, emb='critic 0.1 + disc', base=f'{N}_nce01_gan002',
+         title='Degradation loss from a learned degradation critic only',
+         vars=[['Encoder', 'DEResNet (conditioning only)'], ['Reference size', '64 px, never flat'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, score = cos(phi(x down, output), phi(h down, reference))']],
+         summary='The only degradation loss is an InfoNCE on a frozen pair critic phi (1.9 M parameters) trained with supervised '
+                 'contrastive learning on real same-capture pairs, synthetic same-blur pairs and re-blurred negatives. phi sees '
+                 'the clean image and the LR together. References whose clean HR window is flat are never drawn.',
+         purpose='Stage 2 of the plan: the critic identifies the own real degradation 82% of the time among 11 candidates '
+                 '(DEResNet delta 37%).',
+         findings=['The critic loss stayed at chance during training (InfoNCE about ln 4 = 1.39; matched 0.185 vs unmatched 0.167).',
+                   'Real following near chance: delta top-1 of 10 11.9%, plain 12.4%, critic-scored 11.5%.',
+                   'Quality similar to Run 20: LPIPS 0.0403, FID 40.2; diversity 0.020; flat-region fine texture 2.74.'],
+         verdict='Failed: the generator did not learn to satisfy the critic; needs diagnosis before any further critic runs.'),
+    dict(key=f'{N}_nce02_gan002_critic', size=64, emb='critic 0.2 + disc', base=f'{N}_nce01_gan002_critic',
+         title='Run 35 at weight 0.2',
+         vars=[['Encoder', 'DEResNet (conditioning only)'], ['Reference size', '64 px, never flat'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.2, critic score']],
+         summary='As Run 35 with the degradation loss at weight 0.2.',
+         purpose='Check whether a stronger critic loss starts to bite.',
+         findings=['Critic loss again flat at chance (final InfoNCE 1.51).',
+                   'Real following at chance: delta top-1 11.4%, critic-scored 10.8%. Hand-crop gap 0.004 (outputs almost ignore the reference).',
+                   'LPIPS 0.0398, FID 41.9.'],
+         verdict='Failed, same as Run 35.'),
 ]
 
 
