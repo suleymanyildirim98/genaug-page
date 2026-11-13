@@ -532,6 +532,35 @@ def matching(emb, runs, labels):
                 'are near twins (0.98), so 100% is not reachable.')
 
 
+def load_follow(ev):
+    """Real-data reference following (scratchpad zvar_match*.py): {'plain': {run: {...}}, 'delta': {...}} from all result files."""
+    out = {'plain': {}, 'delta': {}}
+    for f in sorted(ev.glob('zvar_match*.json')):
+        out['delta' if 'delta' in f.name else 'plain'].update(json.loads(f.read_text()))
+    return out
+
+
+def follow_mean(fol, kind, key, q):
+    v = [fol[kind].get(f'{P}{key}_s{s}') for s in (0, 1)]
+    v = [x['real'][q] for x in v if x]
+    return st.mean(v) * 100 if v else None
+
+
+def following(fol, runs, labels):
+    pct = lambda v: f'{v:.1f}%' if v is not None else '—'
+    rows = [['Chance', '10%', '20%', '30%', '10%', '20%', '30%']]
+    for r in runs:
+        rows.append([labels[r['key']]] + [pct(follow_mean(fol, kind, r['key'], f'top{k}')) for kind in ('plain', 'delta') for k in (1, 2, 3)])
+    rows[1][0] = f'<strong>{rows[1][0]}</strong>'
+    return dict(title='Reference following on real data (10 cross references, 5 noise draws)',
+                headers=['', 'Plain top-1 ↑', 'Plain top-2 ↑', 'Plain top-3 ↑', 'Delta top-1 ↑', 'Delta top-2 ↑', 'Delta top-3 ↑'],
+                rows=rows, note='186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference '
+                '(same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds '
+                'and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying '
+                'the reference\'s texture raises it. Delta: cosine between the output\'s change from its clean input, n(J(o)) - n(J(x)), '
+                'and the reference\'s change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels.')
+
+
 def save(src, dst, width):
     dst.parent.mkdir(parents=True, exist_ok=True)
     im = Image.open(src).convert('RGB')
@@ -579,6 +608,7 @@ def main():
     ap.add_argument('--work-dir', default='/scratch/suleymanyildirim22/lr_generation_work')
     ev = Path(ap.parse_args().work_dir) / 'evaluations'
     models, floor, emb = load(ev)
+    fol = load_follow(ev)
     ids = {r['key']: f'run{i + 1}' for i, r in enumerate(RUNS)}
     labels = {k: f'Run {v[3:]}' for k, v in ids.items()}
     byk = {r['key']: r for r in RUNS}
@@ -589,6 +619,8 @@ def main():
         tables = [quality(models, r, base, labels), realism(models, r, base, labels, floor)]
         if r['emb']:
             tables.append(matching(emb, [r] + ([base] if base and base['emb'] else []), labels))
+        if follow_mean(fol, 'plain', r['key'], 'top1') is not None:
+            tables.append(following(fol, [r] + ([base] if base and follow_mean(fol, 'plain', base['key'], 'top1') is not None else []), labels))
         runs.append(dict(id=ids[r['key']], name=labels[r['key']], title=r['title'], summary=r['summary'], purpose=r['purpose'],
                          checkpoint=f'{P}{r["key"]}_s0, _s1', variables=r['vars'],
                          compared_to=(f'{labels[base["key"]]} · {base["title"]}' if base else 'none (baseline)'),
@@ -602,14 +634,18 @@ def main():
                 'native LPIPS 2.0': 'native LPIPS'}.get(v, v)
     overview = dict(title='All runs at a glance (mean of both seeds)',
                     headers=['Run', 'Encoder', 'Reference', 'Perceptual loss', 'Discriminator', 'Degradation loss', 'LPIPS ↓', 'DISTS ↓',
-                             'FID ↓', 'Own ranked closest ↑', 'Own in closest 2 ↑'],
+                             'FID ↓', 'Own ranked closest ↑', 'Own in closest 2 ↑', 'Real top-1, plain ↑', 'Real top-1, delta ↑'],
                     rows=[[f'<a href="#{ids[r["key"]]}">{labels[r["key"]]}</a>', r['vars'][0][1].split(' (')[0], r['vars'][1][1].split(' (')[0],
                            short(r['vars'][2][1]), 'yes' if r['vars'][3][1] != 'none' else '—',
                            '—' if r['vars'][4][1] == 'none' else r['vars'][4][1].split('weight ')[1].split(',')[0],
                            f'{mean(r, "native_lpips"):.4f}', f'{mean(r, "native_dists"):.4f}', f'{mean(r, "native_fid"):.1f}',
                            f'{emb["models"][r["emb"]]["top1_matched_ref"] * 100:.0f}%' if r['emb'] else '—',
-                           f'{emb["models"][r["emb"]]["top2_matched_ref"] * 100:.0f}%' if r['emb'] else '—'] for r in RUNS],
-                    note='Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%).')
+                           f'{emb["models"][r["emb"]]["top2_matched_ref"] * 100:.0f}%' if r['emb'] else '—']
+                          + [(lambda v: f'{v:.1f}%' if v is not None else '—')(follow_mean(fol, kind, r['key'], 'top1')) for kind in ('plain', 'delta')]
+                          for r in RUNS],
+                    note='Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%). '
+                         'Real top-1: the own reference ranked closest among 10 cross references on 186 real test crops (chance 10%), plain DEResNet '
+                         'cosine or delta (content copied from the reference cancels); 64 px reference runs only.')
     glossary = [['LPIPS / DISTS', 'perceptual difference between the generated and the real native LR of the same crop (lower is better)'],
                 ['FID', f'distribution distance between generated and real native LRs (lower is better); the real LR round trip scores {floor["fid"]:.2f}'],
                 ['PSNR', 'pixel agreement with the real LR; rewards smooth outputs, not used for selection'],
@@ -617,6 +653,7 @@ def main():
                 ['Camera slope', 'regression slope of generated per-camera values on real per-camera values (1 = cameras differ as much as in real data)'],
                 ['Noise use', 'standard deviation of the output across noise draws on flat regions, divided by the real noise level'],
                 ['Own ranked closest', 'share of outputs whose DEResNet embedding is closest to the reference they were generated with'],
+                ['Real top-k (plain / delta)', 'reference following on real test crops with 10 cross references: share of outputs whose own reference is among the k most similar; plain compares embeddings directly, delta compares each image\'s change from its clean version, so copied content cancels'],
                 ['Native', 'the 256 px generator output area-downscaled by 4 to the 64 px LR; all numbers on this page are native']]
     data = dict(generated=dt.date.today().isoformat(), shared=SHARED, overview=overview, glossary=glossary, runs=runs)
     (OUT / 'data.json').write_text(json.dumps(data, indent=1, ensure_ascii=False) + '\n')
