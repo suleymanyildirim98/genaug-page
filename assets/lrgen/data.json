@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-12",
+ "generated": "2026-11-13",
  "shared": [
   [
    "Data",
@@ -375,6 +375,84 @@
     "40.0",
     "33%",
     "67%"
+   ],
+   [
+    "<a href=\"#run27\">Run 27</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.1",
+    "0.0381",
+    "0.1167",
+    "41.4",
+    "33%",
+    "67%"
+   ],
+   [
+    "<a href=\"#run28\">Run 28</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.2",
+    "0.0431",
+    "0.1230",
+    "44.4",
+    "33%",
+    "71%"
+   ],
+   [
+    "<a href=\"#run29\">Run 29</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.5",
+    "0.0515",
+    "0.1376",
+    "50.4",
+    "46%",
+    "75%"
+   ],
+   [
+    "<a href=\"#run30\">Run 30</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.1 + 0.1",
+    "0.0380",
+    "0.1167",
+    "40.6",
+    "25%",
+    "58%"
+   ],
+   [
+    "<a href=\"#run31\">Run 31</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.2 + 0.1",
+    "0.0411",
+    "0.1233",
+    "44.1",
+    "33%",
+    "71%"
+   ],
+   [
+    "<a href=\"#run32\">Run 32</a>",
+    "DEResNet",
+    "64 px",
+    "native LPIPS",
+    "yes",
+    "0.1",
+    "0.0331",
+    "0.1093",
+    "38.2",
+    "25%",
+    "54%"
    ]
   ],
   "note": "Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%)."
@@ -591,7 +669,7 @@
     ],
     "hand": [],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–26)."
+    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–32)."
    }
   },
   {
@@ -802,7 +880,7 @@
     ],
     "hand": [],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–26)."
+    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–32)."
    }
   },
   {
@@ -1013,7 +1091,7 @@
     ],
     "hand": [],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–26)."
+    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–32)."
    }
   },
   {
@@ -1224,7 +1302,7 @@
     ],
     "hand": [],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–26)."
+    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–32)."
    }
   },
   {
@@ -1654,7 +1732,7 @@
     ],
     "hand": [],
     "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
-    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–26)."
+    "hand_note": "Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. See the 64 px runs (Run 5 and Runs 7–32)."
    }
   },
   {
@@ -6896,6 +6974,1581 @@
      },
      {
       "src": "assets/lrgen/img/run26/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run27",
+   "name": "Run 27",
+   "title": "Run 20 with the delta target compared direction to direction (cosine)",
+   "summary": "As Run 20, with one change in the degradation loss. In Runs 20–22 the output side of the delta InfoNCE was the plain embedding n(J(o)). Since J(x) is the same for the four outputs of one HR it cancels in the softmax, so the score equals the unnormalised projection of the output's direction J(o) - J(x) on the target direction, which also rewards overshooting along it. Here the output side is the normalised direction n(n(J(o)) - n(J(x_down))), x_down the area-downscaled input HR: the score is the cosine between the output's and the reference's degradation directions.",
+   "purpose": "Remove the reward for exaggerating the degradation, which may explain the quality loss at higher weights.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce01_gan002_deltacos_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE, weight 0.1, delta target, output side as direction (cosine)"
+    ]
+   ],
+   "compared_to": "Run 20 · Run 14 with the degradation direction as the target (delta target)",
+   "findings": [
+    "Less leak and more diversity: flat-region fine texture with panasonic_187 2.91 / 2.76 (Run 20: 3.22 / 3.35, real LR 2.41); diversity 0.023 (Run 20: 0.016).",
+    "Slightly lower quality: LPIPS 0.0381, FID 41.4 (Run 20: 0.0364, 39.7).",
+    "Less following on hand crops: matched minus unmatched similarity 0.088 (Run 20: 0.111). Synthetic benchmark unchanged (own target closest 28%, leak over signal 0.72)."
+   ],
+   "verdict": "Cleaner fine texture and more diversity, but part of Run 20's following came from the overshoot and is gone.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 20 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0372",
+       "0.0390",
+       "<strong>0.0381</strong>",
+       "0.0364",
+       "<span class=\"down\">+0.0017</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1153",
+       "0.1180",
+       "<strong>0.1167</strong>",
+       "0.1133",
+       "<span class=\"down\">+0.0033</span>"
+      ],
+      [
+       "FID ↓",
+       "40.78",
+       "41.99",
+       "<strong>41.38</strong>",
+       "39.65",
+       "<span class=\"down\">+1.73</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "32.24",
+       "31.67",
+       "<strong>31.95</strong>",
+       "32.42",
+       "<span>-0.46</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 20 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.868",
+       "0.881",
+       "<strong>0.875</strong>",
+       "0.889",
+       "<span class=\"down\">-0.015</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.873",
+       "0.914",
+       "<strong>0.893</strong>",
+       "0.948",
+       "<span class=\"down\">-0.055</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "0.922",
+       "0.894",
+       "<strong>0.908</strong>",
+       "0.972",
+       "<span class=\"down\">-0.064</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.959",
+       "0.961",
+       "<strong>0.960</strong>",
+       "0.971",
+       "<span class=\"down\">-0.011</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.715",
+       "0.720",
+       "<strong>0.717</strong>",
+       "0.784",
+       "<span class=\"down\">-0.066</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.930",
+       "0.886",
+       "<strong>0.908</strong>",
+       "0.918",
+       "<span class=\"down\">-0.010</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.490",
+       "0.436",
+       "<strong>0.463</strong>",
+       "0.505",
+       "<span class=\"down\">-0.042</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.524",
+       "0.523",
+       "<strong>0.523</strong>",
+       "0.447",
+       "<span class=\"up\">+0.076</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0225",
+       "0.0226",
+       "<strong>0.0226</strong>",
+       "0.0163",
+       "<span class=\"up\">+0.0063</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 27</strong>",
+       "0.920",
+       "0.877",
+       "0.788",
+       "+0.088",
+       "33%",
+       "67%"
+      ],
+      [
+       "Run 20",
+       "0.895",
+       "0.878",
+       "0.767",
+       "+0.111",
+       "33%",
+       "67%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run27/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run27/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run27/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run27/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run27/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run27/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run27/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run27/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run28",
+   "name": "Run 28",
+   "title": "Run 21 with the delta target compared direction to direction (cosine)",
+   "summary": "As Run 21 (delta at weight 0.2), with the cosine output side of Run 27.",
+   "purpose": "Test whether a higher weight is safe once overshooting no longer pays.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce02_gan002_deltacos_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE, weight 0.2, delta target, output side as direction (cosine)"
+    ]
+   ],
+   "compared_to": "Run 21 · Run 20 with the delta-target weight doubled (0.2)",
+   "findings": [
+    "Quality as Run 21: LPIPS 0.0431, FID 44.4 (Run 21: 0.0414, 43.0).",
+    "Lowest leak of all runs: flat-region fine texture 2.65 / 2.50, closest to the real LR (2.41); diversity 0.025.",
+    "Following 0.110, below Run 21 (0.157) and equal to Run 20 (0.111)."
+   ],
+   "verdict": "The quality cost of weight 0.2 is not caused by overshooting; the cosine form mainly lowers leak.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 21 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0443",
+       "0.0418",
+       "<strong>0.0431</strong>",
+       "0.0414",
+       "<span class=\"down\">+0.0017</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1250",
+       "0.1209",
+       "<strong>0.1230</strong>",
+       "0.1223",
+       "<span class=\"down\">+0.0006</span>"
+      ],
+      [
+       "FID ↓",
+       "44.93",
+       "43.87",
+       "<strong>44.40</strong>",
+       "42.94",
+       "<span class=\"down\">+1.46</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "31.55",
+       "31.50",
+       "<strong>31.52</strong>",
+       "31.66",
+       "<span>-0.13</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 21 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.830",
+       "0.859",
+       "<strong>0.844</strong>",
+       "0.895",
+       "<span class=\"down\">-0.051</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.801",
+       "0.884",
+       "<strong>0.842</strong>",
+       "0.909",
+       "<span class=\"down\">-0.067</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "0.846",
+       "0.923",
+       "<strong>0.885</strong>",
+       "0.920",
+       "<span class=\"down\">-0.035</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "1.000",
+       "0.975",
+       "<strong>0.988</strong>",
+       "0.970",
+       "<span class=\"up\">+0.018</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.646",
+       "0.696",
+       "<strong>0.671</strong>",
+       "0.792",
+       "<span class=\"down\">-0.121</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.840",
+       "0.874",
+       "<strong>0.857</strong>",
+       "0.945",
+       "<span class=\"down\">-0.088</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.359",
+       "0.406",
+       "<strong>0.382</strong>",
+       "0.463",
+       "<span class=\"down\">-0.081</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.524",
+       "0.550",
+       "<strong>0.537</strong>",
+       "0.492",
+       "<span class=\"up\">+0.045</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0219",
+       "0.0276",
+       "<strong>0.0248</strong>",
+       "0.0183",
+       "<span class=\"up\">+0.0065</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 28</strong>",
+       "0.886",
+       "0.862",
+       "0.753",
+       "+0.110",
+       "33%",
+       "71%"
+      ],
+      [
+       "Run 21",
+       "0.836",
+       "0.894",
+       "0.737",
+       "+0.157",
+       "33%",
+       "88%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run28/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run28/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run28/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run28/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run28/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run28/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run28/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run28/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run29",
+   "name": "Run 29",
+   "title": "Run 22 with the delta target compared direction to direction (cosine)",
+   "summary": "As Run 22 (delta at weight 0.5), with the cosine output side of Run 27.",
+   "purpose": "Same test at the weight where Run 22 broke down.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce05_gan002_deltacos_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE, weight 0.5, delta target, output side as direction (cosine)"
+    ]
+   ],
+   "compared_to": "Run 22 · Run 20 with the delta-target weight at 0.5",
+   "findings": [
+    "Better than Run 22: LPIPS 0.0516, FID 50.4 (Run 22: 0.0585, 55.9); flat-region fine texture 2.77 / 3.06 (Run 22: 4.03 / 3.69); no bright borders in the montage.",
+    "Still clearly worse than weight 0.1. Following 0.136 (Run 22: 0.184)."
+   ],
+   "verdict": "The cosine form removes part of the damage at high weight, but 0.5 is still too strong.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 22 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0508",
+       "0.0523",
+       "<strong>0.0515</strong>",
+       "0.0585",
+       "<span class=\"up\">-0.0070</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1384",
+       "0.1368",
+       "<strong>0.1376</strong>",
+       "0.1462",
+       "<span class=\"up\">-0.0087</span>"
+      ],
+      [
+       "FID ↓",
+       "50.42",
+       "50.45",
+       "<strong>50.43</strong>",
+       "55.82",
+       "<span class=\"up\">-5.39</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "30.46",
+       "30.38",
+       "<strong>30.42</strong>",
+       "30.00",
+       "<span>+0.42</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 22 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.916",
+       "0.998",
+       "<strong>0.957</strong>",
+       "0.987",
+       "<span class=\"down\">-0.030</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.822",
+       "0.870",
+       "<strong>0.846</strong>",
+       "0.849",
+       "<span class=\"down\">-0.003</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "0.834",
+       "0.944",
+       "<strong>0.889</strong>",
+       "0.952",
+       "<span class=\"down\">-0.063</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.966",
+       "0.986",
+       "<strong>0.976</strong>",
+       "0.965",
+       "<span class=\"up\">+0.011</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.700",
+       "0.708",
+       "<strong>0.704</strong>",
+       "0.824",
+       "<span class=\"down\">-0.120</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.968",
+       "0.975",
+       "<strong>0.972</strong>",
+       "0.988",
+       "<span class=\"down\">-0.017</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.344",
+       "0.323",
+       "<strong>0.334</strong>",
+       "0.387",
+       "<span class=\"down\">-0.053</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.595",
+       "0.635",
+       "<strong>0.615</strong>",
+       "0.496",
+       "<span class=\"up\">+0.119</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0228",
+       "0.0246",
+       "<strong>0.0237</strong>",
+       "0.0158",
+       "<span class=\"up\">+0.0080</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 29</strong>",
+       "0.840",
+       "0.845",
+       "0.709",
+       "+0.136",
+       "46%",
+       "75%"
+      ],
+      [
+       "Run 22",
+       "0.786",
+       "0.838",
+       "0.654",
+       "+0.184",
+       "62%",
+       "88%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run29/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run29/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run29/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run29/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run29/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run29/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run29/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run29/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run30",
+   "name": "Run 30",
+   "title": "Run 26 with the cosine delta target",
+   "summary": "As Run 26 (delta 0.1 + synthetic InfoNCE 0.1), with the cosine output side of Run 27 in the real branch. The synthetic InfoNCE is unchanged.",
+   "purpose": "A/B: synthetic InfoNCE on top of the cosine delta (vs Run 27), and the cosine delta with the synthetic branch on (vs Run 26).",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce01_gan002_deltacos_synnce_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE + synthetic InfoNCE, weight 0.1 + 0.1, delta target (cosine)"
+    ]
+   ],
+   "compared_to": "Run 27 · Run 20 with the delta target compared direction to direction (cosine)",
+   "findings": [
+    "vs Run 27: following 0.104 (0.088), leak over signal on the synthetic benchmark 0.64 (0.72), quality equal (LPIPS 0.0381, FID 40.7).",
+    "vs Run 26: lower leak (flat-region fine texture 2.84 / 2.87 vs 3.13 / 3.03) and more diversity (0.022 vs 0.015), slightly lower quality (LPIPS 0.0381 vs 0.0357) and following (0.104 vs 0.113)."
+   ],
+   "verdict": "The synthetic branch again adds a small, consistent gain in following and leak.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 27 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0381",
+       "0.0380",
+       "<strong>0.0380</strong>",
+       "0.0381",
+       "<span>-0.0001</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1172",
+       "0.1163",
+       "<strong>0.1167</strong>",
+       "0.1167",
+       "<span>+0.0001</span>"
+      ],
+      [
+       "FID ↓",
+       "40.64",
+       "40.65",
+       "<strong>40.65</strong>",
+       "41.38",
+       "<span class=\"up\">-0.74</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "32.20",
+       "31.36",
+       "<strong>31.78</strong>",
+       "31.95",
+       "<span>-0.18</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 27 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.880",
+       "0.855",
+       "<strong>0.868</strong>",
+       "0.875",
+       "<span class=\"down\">-0.007</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.865",
+       "0.910",
+       "<strong>0.887</strong>",
+       "0.893",
+       "<span class=\"down\">-0.006</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "1.023",
+       "0.915",
+       "<strong>0.969</strong>",
+       "0.908",
+       "<span class=\"up\">+0.061</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.968",
+       "0.971",
+       "<strong>0.969</strong>",
+       "0.960",
+       "<span class=\"up\">+0.010</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.742",
+       "0.741",
+       "<strong>0.741</strong>",
+       "0.717",
+       "<span class=\"up\">+0.024</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.909",
+       "0.885",
+       "<strong>0.897</strong>",
+       "0.908",
+       "<span class=\"down\">-0.010</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.473",
+       "0.456",
+       "<strong>0.465</strong>",
+       "0.463",
+       "<span class=\"up\">+0.001</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.538",
+       "0.526",
+       "<strong>0.532</strong>",
+       "0.523",
+       "<span class=\"up\">+0.009</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0220",
+       "0.0221",
+       "<strong>0.0220</strong>",
+       "0.0226",
+       "<span class=\"down\">-0.0005</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 30</strong>",
+       "0.909",
+       "0.887",
+       "0.783",
+       "+0.104",
+       "25%",
+       "58%"
+      ],
+      [
+       "Run 27",
+       "0.920",
+       "0.877",
+       "0.788",
+       "+0.088",
+       "33%",
+       "67%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run30/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run30/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run30/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run30/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run30/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run30/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run30/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run30/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run31",
+   "name": "Run 31",
+   "title": "Run 28 + synthetic InfoNCE",
+   "summary": "As Run 30 with the real delta branch at weight 0.2.",
+   "purpose": "The same A/B at the higher delta weight.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce02_gan002_deltacos_synnce_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE + synthetic InfoNCE, weight 0.2 + 0.1, delta target (cosine)"
+    ]
+   ],
+   "compared_to": "Run 28 · Run 21 with the delta target compared direction to direction (cosine)",
+   "findings": [
+    "vs Run 28: following 0.118 (0.110), leak over signal 0.67 (0.74), LPIPS 0.0411 (0.0431), FID 44.1 (44.4).",
+    "Flat-region fine texture 2.75 / 2.57; diversity 0.023."
+   ],
+   "verdict": "Same small gain from the synthetic branch; quality still below weight 0.1.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 28 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0413",
+       "0.0409",
+       "<strong>0.0411</strong>",
+       "0.0431",
+       "<span class=\"up\">-0.0020</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1247",
+       "0.1218",
+       "<strong>0.1233</strong>",
+       "0.1230",
+       "<span class=\"down\">+0.0003</span>"
+      ],
+      [
+       "FID ↓",
+       "45.21",
+       "43.04",
+       "<strong>44.13</strong>",
+       "44.40",
+       "<span class=\"up\">-0.27</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "31.58",
+       "31.18",
+       "<strong>31.38</strong>",
+       "31.52",
+       "<span>-0.14</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 28 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.876",
+       "0.862",
+       "<strong>0.869</strong>",
+       "0.844",
+       "<span class=\"up\">+0.024</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.869",
+       "0.901",
+       "<strong>0.885</strong>",
+       "0.842",
+       "<span class=\"up\">+0.043</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "0.904",
+       "0.912",
+       "<strong>0.908</strong>",
+       "0.885",
+       "<span class=\"up\">+0.024</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.988",
+       "0.997",
+       "<strong>0.993</strong>",
+       "0.988",
+       "<span class=\"up\">+0.005</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.718",
+       "0.718",
+       "<strong>0.718</strong>",
+       "0.671",
+       "<span class=\"up\">+0.047</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.900",
+       "0.926",
+       "<strong>0.913</strong>",
+       "0.857",
+       "<span class=\"up\">+0.056</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.449",
+       "0.410",
+       "<strong>0.429</strong>",
+       "0.382",
+       "<span class=\"up\">+0.047</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.562",
+       "0.557",
+       "<strong>0.560</strong>",
+       "0.537",
+       "<span class=\"up\">+0.023</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0229",
+       "0.0237",
+       "<strong>0.0233</strong>",
+       "0.0248",
+       "<span class=\"down\">-0.0014</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 31</strong>",
+       "0.892",
+       "0.896",
+       "0.779",
+       "+0.117",
+       "33%",
+       "71%"
+      ],
+      [
+       "Run 28",
+       "0.886",
+       "0.862",
+       "0.753",
+       "+0.110",
+       "33%",
+       "71%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run31/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run31/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run31/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run31/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run31/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run31/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run31/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run31/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run32",
+   "name": "Run 32",
+   "title": "Degradation loss on the own real reference plus 3 synthetic references (no cross-image real references)",
+   "summary": "The real cross references of the degradation loss are replaced by synthetic ones. For each of 4 HRs x, the candidates are the own real reference (target J(y), y the real LR of x) and 3 synthetic references D(h) on other HRs (target J(D(x))). Every target has x's content, so the plain embedding is the exact target; no delta. Synthetic outputs are used only in this loss.",
+   "purpose": "Use exact same-content targets for every candidate.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce01_gan002_ownsynth_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "soft-target InfoNCE, weight 0.1, own real reference + 3 synthetic references, plain embedding targets"
+    ]
+   ],
+   "compared_to": "Run 14 · All-native + degradation loss 0.1 + discriminator",
+   "findings": [
+    "Best quality of the reference-conditioned runs: LPIPS 0.0331, FID 38.2.",
+    "Almost no following of real references: matched minus unmatched similarity 0.041 (Run 20: 0.11, Run 27: 0.088); the outputs with the matched and the panasonic_187 reference are nearly identical in the montage.",
+    "Synthetic benchmark: own target closest 30%, leak over signal 0.59 (lowest, because the outputs change little with the reference). In training the real-reference output picked the real LR 75% of the time."
+   ],
+   "verdict": "Without cross-image real references the model stops following real references; synthetic comparisons do not replace them.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 14 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0328",
+       "0.0333",
+       "<strong>0.0331</strong>",
+       "0.0385",
+       "<span class=\"up\">-0.0055</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1095",
+       "0.1092",
+       "<strong>0.1093</strong>",
+       "0.1165",
+       "<span class=\"up\">-0.0072</span>"
+      ],
+      [
+       "FID ↓",
+       "38.09",
+       "38.22",
+       "<strong>38.16</strong>",
+       "40.51",
+       "<span class=\"up\">-2.35</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "32.55",
+       "32.96",
+       "<strong>32.75</strong>",
+       "32.22",
+       "<span>+0.54</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 14 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.918",
+       "0.890",
+       "<strong>0.904</strong>",
+       "0.877",
+       "<span class=\"up\">+0.028</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.918",
+       "0.976",
+       "<strong>0.947</strong>",
+       "0.887",
+       "<span class=\"up\">+0.060</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "0.971",
+       "0.947",
+       "<strong>0.959</strong>",
+       "0.954",
+       "<span class=\"up\">+0.006</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.969",
+       "0.956",
+       "<strong>0.963</strong>",
+       "0.957",
+       "<span class=\"up\">+0.006</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.777",
+       "0.783",
+       "<strong>0.780</strong>",
+       "0.734",
+       "<span class=\"up\">+0.047</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.997",
+       "0.927",
+       "<strong>0.962</strong>",
+       "0.966",
+       "<span class=\"down\">-0.004</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.571",
+       "0.605",
+       "<strong>0.588</strong>",
+       "0.423",
+       "<span class=\"up\">+0.165</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.468",
+       "0.440",
+       "<strong>0.454</strong>",
+       "0.388",
+       "<span class=\"up\">+0.065</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0144",
+       "0.0139",
+       "<strong>0.0141</strong>",
+       "0.0123",
+       "<span class=\"up\">+0.0018</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 32</strong>",
+       "0.948",
+       "0.825",
+       "0.784",
+       "+0.041",
+       "25%",
+       "54%"
+      ],
+      [
+       "Run 14",
+       "0.816",
+       "0.940",
+       "0.764",
+       "+0.175",
+       "54%",
+       "100%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run32/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run32/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run32/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run32/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run32/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run32/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run32/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run32/hand_s1.jpg",
       "caption": "Seed 1"
      }
     ],

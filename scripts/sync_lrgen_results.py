@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -354,6 +354,86 @@ RUNS = [
                    'Reference following as Run 20: matched minus unmatched similarity 0.11, own in closest 2 67%.',
                    'Quality as Run 20 or slightly better: LPIPS 0.0357, FID 40.1 (Run 20: 0.0364, 39.7); diversity 0.015.'],
          verdict='Small but consistent gain over Run 20: less leak at equal following and quality. New best base.'),
+    dict(key=f'{N}_nce01_gan002_deltacos', size=64, emb='delta-cos 0.1 + disc', base=f'{N}_nce01_gan002_delta',
+         title='Run 20 with the delta target compared direction to direction (cosine)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, delta target, output side as direction (cosine)']],
+         summary='As Run 20, with one change in the degradation loss. In Runs 20–22 the output side of the delta InfoNCE was the plain embedding n(J(o)). Since J(x) is the same for the four '
+                 'outputs of one HR it cancels in the softmax, so the score equals the unnormalised projection of the output\'s '
+                 'direction J(o) - J(x) on the target direction, which also rewards overshooting along it. Here the output side is '
+                 'the normalised direction n(n(J(o)) - n(J(x_down))), x_down the area-downscaled input HR: the score is the cosine '
+                 'between the output\'s and the reference\'s degradation directions.',
+         purpose='Remove the reward for exaggerating the degradation, which may explain the quality loss at higher weights.',
+         findings=['Less leak and more diversity: flat-region fine texture with panasonic_187 2.91 / 2.76 (Run 20: 3.22 / 3.35, '
+                   'real LR 2.41); diversity 0.023 (Run 20: 0.016).',
+                   'Slightly lower quality: LPIPS 0.0381, FID 41.4 (Run 20: 0.0364, 39.7).',
+                   'Less following on hand crops: matched minus unmatched similarity 0.088 (Run 20: 0.111). Synthetic benchmark '
+                   'unchanged (own target closest 28%, leak over signal 0.72).'],
+         verdict='Cleaner fine texture and more diversity, but part of Run 20\'s following came from the overshoot and is gone.'),
+    dict(key=f'{N}_nce02_gan002_deltacos', size=64, emb='delta-cos 0.2 + disc', base=f'{N}_nce02_gan002_delta',
+         title='Run 21 with the delta target compared direction to direction (cosine)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.2, delta target, output side as direction (cosine)']],
+         summary='As Run 21 (delta at weight 0.2), with the cosine output side of Run 27.',
+         purpose='Test whether a higher weight is safe once overshooting no longer pays.',
+         findings=['Quality as Run 21: LPIPS 0.0431, FID 44.4 (Run 21: 0.0414, 43.0).',
+                   'Lowest leak of all runs: flat-region fine texture 2.65 / 2.50, closest to the real LR (2.41); diversity 0.025.',
+                   'Following 0.110, below Run 21 (0.157) and equal to Run 20 (0.111).'],
+         verdict='The quality cost of weight 0.2 is not caused by overshooting; the cosine form mainly lowers leak.'),
+    dict(key=f'{N}_nce05_gan002_deltacos', size=64, emb='delta-cos 0.5 + disc', base=f'{N}_nce05_gan002_delta',
+         title='Run 22 with the delta target compared direction to direction (cosine)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.5, delta target, output side as direction (cosine)']],
+         summary='As Run 22 (delta at weight 0.5), with the cosine output side of Run 27.',
+         purpose='Same test at the weight where Run 22 broke down.',
+         findings=['Better than Run 22: LPIPS 0.0516, FID 50.4 (Run 22: 0.0585, 55.9); flat-region fine texture 2.77 / 3.06 '
+                   '(Run 22: 4.03 / 3.69); no bright borders in the montage.',
+                   'Still clearly worse than weight 0.1. Following 0.136 (Run 22: 0.184).'],
+         verdict='The cosine form removes part of the damage at high weight, but 0.5 is still too strong.'),
+    dict(key=f'{N}_nce01_gan002_deltacos_synnce', size=64, emb='delta-cos 0.1 + disc + synthetic InfoNCE', base=f'{N}_nce01_gan002_deltacos',
+         title='Run 26 with the cosine delta target',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE + synthetic InfoNCE, weight 0.1 + 0.1, delta target (cosine)']],
+         summary='As Run 26 (delta 0.1 + synthetic InfoNCE 0.1), with the cosine output side of Run 27 in the real branch. The '
+                 'synthetic InfoNCE is unchanged.',
+         purpose='A/B: synthetic InfoNCE on top of the cosine delta (vs Run 27), and the cosine delta with the synthetic branch on '
+                 '(vs Run 26).',
+         findings=['vs Run 27: following 0.104 (0.088), leak over signal on the synthetic benchmark 0.64 (0.72), quality equal '
+                   '(LPIPS 0.0381, FID 40.7).',
+                   'vs Run 26: lower leak (flat-region fine texture 2.84 / 2.87 vs 3.13 / 3.03) and more diversity (0.022 vs 0.015), '
+                   'slightly lower quality (LPIPS 0.0381 vs 0.0357) and following (0.104 vs 0.113).'],
+         verdict='The synthetic branch again adds a small, consistent gain in following and leak.'),
+    dict(key=f'{N}_nce02_gan002_deltacos_synnce', size=64, emb='delta-cos 0.2 + disc + synthetic InfoNCE', base=f'{N}_nce02_gan002_deltacos',
+         title='Run 28 + synthetic InfoNCE',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE + synthetic InfoNCE, weight 0.2 + 0.1, delta target (cosine)']],
+         summary='As Run 30 with the real delta branch at weight 0.2.',
+         purpose='The same A/B at the higher delta weight.',
+         findings=['vs Run 28: following 0.118 (0.110), leak over signal 0.67 (0.74), LPIPS 0.0411 (0.0431), FID 44.1 (44.4).',
+                   'Flat-region fine texture 2.75 / 2.57; diversity 0.023.'],
+         verdict='Same small gain from the synthetic branch; quality still below weight 0.1.'),
+    dict(key=f'{N}_nce01_gan002_ownsynth', size=64, emb='own real + 3 synthetic InfoNCE 0.1 + disc', base=f'{N}_nce01_gan002',
+         title='Degradation loss on the own real reference plus 3 synthetic references (no cross-image real references)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'soft-target InfoNCE, weight 0.1, own real reference + 3 synthetic references, plain embedding targets']],
+         summary='The real cross references of the degradation loss are replaced by synthetic ones. For each of 4 HRs x, the '
+                 'candidates are the own real reference (target J(y), y the real LR of x) and 3 synthetic references D(h) on other '
+                 'HRs (target J(D(x))). Every target has x\'s content, so the plain embedding is the exact target; no delta. '
+                 'Synthetic outputs are used only in this loss.',
+         purpose='Use exact same-content targets for every candidate.',
+         findings=['Best quality of the reference-conditioned runs: LPIPS 0.0331, FID 38.2.',
+                   'Almost no following of real references: matched minus unmatched similarity 0.041 (Run 20: 0.11, Run 27: 0.088); '
+                   'the outputs with the matched and the panasonic_187 reference are nearly identical in the montage.',
+                   'Synthetic benchmark: own target closest 30%, leak over signal 0.59 (lowest, because the outputs change little '
+                   'with the reference). In training the real-reference output picked the real LR 75% of the time.'],
+         verdict='Without cross-image real references the model stops following real references; synthetic comparisons do not '
+                 'replace them.'),
 ]
 
 
@@ -483,7 +563,7 @@ def visuals(ev, run, rid):
                         '(lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom.')
     if run['size'] == 128:
         out['hand_note'] = ('Not run: this model was trained with 128 px references, and the hand-cropped references are 64 px. '
-                            'See the 64 px runs (Run 5 and Runs 7–26).')
+                            'See the 64 px runs (Run 5 and Runs 7–32).')
         return out
     for s in (0, 1):
         f = ev / HAND[64] / f'grid_{P}{key}_s{s}.png'
