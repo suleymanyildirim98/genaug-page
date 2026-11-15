@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -482,6 +482,33 @@ RUNS = [
                    'Real following at chance: delta top-1 11.4%, critic-scored 10.8%. Hand-crop gap 0.004 (outputs almost ignore the reference).',
                    'LPIPS 0.0398, FID 41.9.'],
          verdict='Failed, same as Run 35.'),
+    dict(key=f'{N}_nce01_gan002_branch', size=64, emb='two-branch 0.1 + disc', base=f'{N}_nce01_gan002_ownsynth',
+         title='Two-branch degradation loss: a real branch and a synthetic branch, never-flat crops',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'],
+               ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'hard multi-positive InfoNCE (SupCon), weight 0.1, tau 0.1, plain normalised DEResNet embeddings, '
+                                    'mean of a real and a synthetic branch'],
+               ['Synthetic degradations', 'fitted to DRealSR train captures: gain + luma tone, DoG blur/sharpening, signal-dependent noise']],
+         summary='Real branch: o_A = G(x_A | own real reference); positives the real LR y_A and a second non-flat 64 px real crop of '
+                 'the same patch (disjoint from A and the reference); negatives two synthetic degradations of x_A and a real crop from '
+                 'another camera. Synthetic branch: o_B = G(x_A | D1(h)), a synthetic reference on another HR of the batch; positive '
+                 'D1(x_A), negatives D2(x_A), D3(x_A). The synthetic degradations reuse per-capture parameters measured on the DRealSR '
+                 'training set (no JPEG: none found). A crops, references and the second real crop all pass the non-flat check.',
+         purpose='Keep content-matched real targets (no content leak) while giving the generator a second, exactly known degradation '
+                 'to follow through a synthetic reference.',
+         findings=['Quality close to the no-degradation-loss runs: LPIPS 0.0344, FID 39.0, DISTS 0.111 (Run 9: 0.0336, 37.9; Run 32: '
+                   '0.0331, 38.2); diversity 0.0175, the highest of the top-ranked runs.',
+                   'Hand-crop following doubles Run 32\'s: matched minus unmatched similarity 0.095 (Run 32: 0.041, Run 9: 0.042, '
+                   'Run 20: 0.11), own reference in the closest 2 67%; outputs differ by 6.2 levels across references (Run 9: 5.4).',
+                   'Real-data following with the DEResNet judge barely above Run 32: plain top-1 of 10 17.0% (Run 32: 16.2%, Run 9: '
+                   '13.4%), delta top-1 14.7% (Run 32: 15.2%).',
+                   'Judge-free check against the true LR (own-image vs other-camera reference, same HR and noise): LPIPS gap 0.0186 '
+                   '(Run 32: 0.0163, Run 9: 0.0151, Run 20: 0.0137, Run 14: 0.0227) with own-reference LPIPS 0.0317 (Run 14: 0.0355).',
+                   'In training the real branch picked a real positive 82% of the time; the synthetic branch stayed near chance (37%, '
+                   'chance 33%). Its ceiling with the frozen DEResNet is only about 41-48%, because realistic degradations differ too '
+                   'little for the condition encoder to read them across content.'],
+         verdict='Best balance so far: quality near the leak-free baselines with the largest leak-free following gap, but the extra '
+                 'following is small and comes from the real branch; the synthetic branch adds little with realistic degradations.'),
 ]
 
 

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-13",
+ "generated": "2026-11-15",
  "shared": [
   [
    "Data",
@@ -579,6 +579,21 @@
     "50%",
     "11.9%",
     "11.4%"
+   ],
+   [
+    "<a href=\"#run37\">Run 37</a>",
+    "DEResNet",
+    "64 px, never flat",
+    "A crop never flat",
+    "yes",
+    "0.02",
+    "0.0344",
+    "0.1106",
+    "39.0",
+    "29%",
+    "67%",
+    "17.0%",
+    "14.7%"
    ]
   ],
   "note": "Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%). Real top-1: the own reference ranked closest among 10 cross references on 186 real test crops (chance 10%), plain DEResNet cosine or delta (content copied from the reference cancels); 64 px reference runs only."
@@ -11023,6 +11038,321 @@
      },
      {
       "src": "assets/lrgen/img/run36/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run37",
+   "name": "Run 37",
+   "title": "Two-branch degradation loss: a real branch and a synthetic branch, never-flat crops",
+   "summary": "Real branch: o_A = G(x_A | own real reference); positives the real LR y_A and a second non-flat 64 px real crop of the same patch (disjoint from A and the reference); negatives two synthetic degradations of x_A and a real crop from another camera. Synthetic branch: o_B = G(x_A | D1(h)), a synthetic reference on another HR of the batch; positive D1(x_A), negatives D2(x_A), D3(x_A). The synthetic degradations reuse per-capture parameters measured on the DRealSR training set (no JPEG: none found). A crops, references and the second real crop all pass the non-flat check.",
+   "purpose": "Keep content-matched real targets (no content leak) while giving the generator a second, exactly known degradation to follow through a synthetic reference.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_nce01_gan002_branch_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet"
+    ],
+    [
+     "Reference size",
+     "64 px, never flat"
+    ],
+    [
+     "Training input",
+     "A crop never flat"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02"
+    ],
+    [
+     "Degradation loss",
+     "hard multi-positive InfoNCE (SupCon), weight 0.1, tau 0.1, plain normalised DEResNet embeddings, mean of a real and a synthetic branch"
+    ],
+    [
+     "Synthetic degradations",
+     "fitted to DRealSR train captures: gain + luma tone, DoG blur/sharpening, signal-dependent noise"
+    ]
+   ],
+   "compared_to": "Run 32 · Degradation loss on the own real reference plus 3 synthetic references (no cross-image real references)",
+   "findings": [
+    "Quality close to the no-degradation-loss runs: LPIPS 0.0344, FID 39.0, DISTS 0.111 (Run 9: 0.0336, 37.9; Run 32: 0.0331, 38.2); diversity 0.0175, the highest of the top-ranked runs.",
+    "Hand-crop following doubles Run 32's: matched minus unmatched similarity 0.095 (Run 32: 0.041, Run 9: 0.042, Run 20: 0.11), own reference in the closest 2 67%; outputs differ by 6.2 levels across references (Run 9: 5.4).",
+    "Real-data following with the DEResNet judge barely above Run 32: plain top-1 of 10 17.0% (Run 32: 16.2%, Run 9: 13.4%), delta top-1 14.7% (Run 32: 15.2%).",
+    "Judge-free check against the true LR (own-image vs other-camera reference, same HR and noise): LPIPS gap 0.0186 (Run 32: 0.0163, Run 9: 0.0151, Run 20: 0.0137, Run 14: 0.0227) with own-reference LPIPS 0.0317 (Run 14: 0.0355).",
+    "In training the real branch picked a real positive 82% of the time; the synthetic branch stayed near chance (37%, chance 33%). Its ceiling with the frozen DEResNet is only about 41-48%, because realistic degradations differ too little for the condition encoder to read them across content."
+   ],
+   "verdict": "Best balance so far: quality near the leak-free baselines with the largest leak-free following gap, but the extra following is small and comes from the real branch; the synthetic branch adds little with realistic degradations.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 32 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0348",
+       "0.0340",
+       "<strong>0.0344</strong>",
+       "0.0331",
+       "<span class=\"down\">+0.0014</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1113",
+       "0.1099",
+       "<strong>0.1106</strong>",
+       "0.1093",
+       "<span class=\"down\">+0.0013</span>"
+      ],
+      [
+       "FID ↓",
+       "38.97",
+       "38.99",
+       "<strong>38.98</strong>",
+       "38.16",
+       "<span class=\"down\">+0.83</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "32.54",
+       "32.66",
+       "<strong>32.60</strong>",
+       "32.75",
+       "<span>-0.15</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 32 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.919",
+       "0.903",
+       "<strong>0.911</strong>",
+       "0.904",
+       "<span class=\"up\">+0.007</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.901",
+       "0.949",
+       "<strong>0.925</strong>",
+       "0.947",
+       "<span class=\"down\">-0.022</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "1.007",
+       "0.947",
+       "<strong>0.977</strong>",
+       "0.959",
+       "<span class=\"up\">+0.017</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.989",
+       "0.991",
+       "<strong>0.990</strong>",
+       "0.963",
+       "<span class=\"up\">+0.028</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.792",
+       "0.831",
+       "<strong>0.811</strong>",
+       "0.780",
+       "<span class=\"up\">+0.031</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "1.099",
+       "1.055",
+       "<strong>1.077</strong>",
+       "0.962",
+       "<span class=\"down\">+0.115</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.507",
+       "0.604",
+       "<strong>0.556</strong>",
+       "0.588",
+       "<span class=\"down\">-0.033</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.456",
+       "0.484",
+       "<strong>0.470</strong>",
+       "0.454",
+       "<span class=\"up\">+0.016</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0168",
+       "0.0182",
+       "<strong>0.0175</strong>",
+       "0.0141",
+       "<span class=\"up\">+0.0034</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 37</strong>",
+       "0.891",
+       "0.875",
+       "0.780",
+       "+0.095",
+       "29%",
+       "67%"
+      ],
+      [
+       "Run 32",
+       "0.948",
+       "0.825",
+       "0.784",
+       "+0.041",
+       "25%",
+       "54%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    },
+    {
+     "title": "Reference following on real data (10 cross references, 5 noise draws)",
+     "headers": [
+      "",
+      "Plain top-1 ↑",
+      "Plain top-2 ↑",
+      "Plain top-3 ↑",
+      "Delta top-1 ↑",
+      "Delta top-2 ↑",
+      "Delta top-3 ↑"
+     ],
+     "rows": [
+      [
+       "Chance",
+       "10%",
+       "20%",
+       "30%",
+       "10%",
+       "20%",
+       "30%"
+      ],
+      [
+       "<strong>Run 37</strong>",
+       "17.0%",
+       "30.3%",
+       "42.0%",
+       "14.7%",
+       "25.7%",
+       "36.8%"
+      ],
+      [
+       "Run 32",
+       "16.2%",
+       "29.1%",
+       "40.9%",
+       "15.2%",
+       "26.9%",
+       "38.6%"
+      ]
+     ],
+     "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run37/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run37/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run37/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run37/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run37/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run37/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run37/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run37/hand_s1.jpg",
       "caption": "Seed 1"
      }
     ],
