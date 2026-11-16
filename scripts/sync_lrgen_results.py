@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch', 'colpair', 'nonflat') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -509,6 +509,41 @@ RUNS = [
                    'little for the condition encoder to read them across content.'],
          verdict='Best balance so far: quality near the leak-free baselines with the largest leak-free following gap, but the extra '
                  'following is small and comes from the real branch; the synthetic branch adds little with realistic degradations.'),
+    dict(key=f'{N}_nce01_gan002_colpair', size=64, emb='column-pair 0.1 + disc', base=f'{N}_nce01_gan002_branch',
+         title='Column-pair degradation loss: own output against a cross-reference output of the same HR, per-column softmax',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'],
+               ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'InfoNCE, weight 0.1, tau 0.1, plain normalised DEResNet embeddings, one 2-way softmax per content '
+                                    'column: same content 1.0, different content 0.25']],
+         summary='Real branch only, no synthetic data. Anchor o_A = G(x_A | own reference). Same-content column: the real LR y_A '
+                 '(positive) against o_cross = G_EMA(x_A | reference from another camera), same noise, no gradient (EMA copy of the '
+                 'generator, decay 0.999). Different-content column, weight 0.25: a second non-flat real crop of A\'s patch (positive) '
+                 'against a real crop from another camera. Each column has its own softmax: with one shared softmax the far '
+                 'different-content positive would have to beat the near same-content negative, which content makes impossible about '
+                 '70% of the time.',
+         purpose='Reward reference dependence directly with a same-content negative from the generator itself, without the synthetic '
+                 'degradations whose realistic draws act as false negatives.',
+         findings=['The loss trained as intended: same-content top-1 rose from 0.54 to 0.74 and the distance between o_A and o_cross from '
+                   '0.21 to 0.27, while the distance to the real LR stayed flat (0.165 to 0.150).',
+                   'Judge-free transfer test on the whole test set (1,488 non-flat crops, 4 own-image and 8 other-camera references): '
+                   'LPIPS gap 0.0180, own-reference LPIPS 0.0335 (Run 37: 0.0179, 0.0337; Run 39: 0.0175, 0.0332; Run 9: 0.0157, 0.0338).',
+                   'Quality as Run 37: FID 38.9, LPIPS 0.0341, DISTS 0.111; diversity 0.0178. Hand-crop gap 0.080, own reference in the '
+                   'closest 2 58%.'],
+         verdict='Same transfer and quality as Run 37 and no better than Run 39 without any degradation loss: the separation it learns in '
+                 'DEResNet space does not bring outputs closer to the true LR. The frozen DEResNet limits every loss built on it.'),
+    dict(key=f'{N}_gan002_nonflat', size=64, emb='native LPIPS + disc, never-flat crops', base=f'{N}_gan002',
+         title='Run 9 with never-flat training crops and references (no degradation loss)',
+         vars=[['Encoder', 'DEResNet'], ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'],
+               ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'], ['Degradation loss', 'none']],
+         summary='As Run 9, but the training crop A and its reference must both pass the non-flat check (mean band reliability of the '
+                 'clean centre 64 px at least 0.2), drawn jointly; the same filtering as Runs 37 and 38.',
+         purpose='Separate the effect of the crop filter from the degradation losses of Runs 37 and 38.',
+         findings=['The filter alone gives almost all of Runs 37 and 38\'s transfer gain: judge-free LPIPS gap 0.0175 (Run 9: 0.0157; '
+                   'Run 37: 0.0179; Run 38: 0.0180), DISTS gap 0.0147 (Run 9: 0.0133).',
+                   'Quality better than Runs 37 and 38 and close to Run 9: FID 38.3, LPIPS 0.0335, DISTS 0.110 (Run 9: 37.9, 0.0336, 0.109); '
+                   'own-reference LPIPS 0.0332; diversity 0.0179.',
+                   'Hand-crop gap 0.054 (Run 9: 0.042, Run 37: 0.095).'],
+         verdict='New base: the same transfer as the degradation-loss runs at better quality and with a simpler setup.'),
 ]
 
 
