@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch', 'colpair', 'nonflat') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch', 'colpair', 'nonflat', 'enc3e6') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -544,6 +544,29 @@ RUNS = [
                    'own-reference LPIPS 0.0332; diversity 0.0179.',
                    'Hand-crop gap 0.054 (Run 9: 0.042, Run 37: 0.095).'],
          verdict='New base: the same transfer as the degradation-loss runs at better quality and with a simpler setup.'),
+    dict(key=f'{N}_gan002_nonflat_enc3e6', size=64, emb='never-flat crops + encoder fine-tuned', base=f'{N}_gan002_nonflat',
+         title='Run 39 with the DEResNet condition encoder fine-tuned (learning rate 3e-6 from 10k)',
+         vars=[['Encoder', 'DEResNet, trainable from the body unfreeze (10k), lr 3e-6 with the body\'s warmup and cosine decay'],
+               ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02 (condition detached)'], ['Degradation loss', 'none']],
+         summary='Identical to Run 39 (same seeds, data and schedule; training losses match to every logged digit up to 10k), except that '
+                 'the condition encoder joins stage 2 and is trained by the reconstruction, perceptual and GAN losses at a learning '
+                 'rate 3x below the body\'s. DEResNet has no normalisation layers. The fine-tuned encoder is saved with each checkpoint '
+                 'and used by every evaluation.',
+         purpose='The degradation losses of Runs 37 and 38 stalled because the frozen DEResNet limits how much degradation '
+                 'information reaches the generator; let the main losses adapt the encoder instead.',
+         findings=['Best quality of all runs: FID 37.5, LPIPS 0.0304, DISTS 0.106 (Run 39: 38.3, 0.0335, 0.110; Run 9: 37.9, 0.0336, '
+                   '0.109); diversity 0.0181.',
+                   'Judge-free transfer test on the whole test set (1,488 non-flat crops, 4 own-image and 8 other-camera references): '
+                   'LPIPS gap 0.0262 (seeds 0.0269, 0.0256), up from 0.0175 for Run 39 and 0.0180 for Run 38; DISTS gap 0.0232 (Run 39: '
+                   '0.0147); low-pass PSNR gap 0.79 dB and full PSNR gap 1.00 dB (Run 39: 0.50, 0.65). Own-reference LPIPS 0.0299 '
+                   '(Run 39: 0.0332).',
+                   'Hand-crop gap with the original DEResNet as judge 0.061, own reference in the closest 2 54% (Run 39: 0.054, 50%): '
+                   'the gain is in the true LR, not in the frozen judge\'s space.',
+                   'Not yet checked: whether part of the gain is scene information passed through the encoder (references come from '
+                   'the same image); a rotated / flipped reference test would separate it.'],
+         verdict='Largest gain of the series in both quality and reference following: the frozen condition encoder was the bottleneck. '
+                 'New best, pending the scene-leakage check.'),
 ]
 
 
@@ -713,12 +736,55 @@ def visuals(ev, run, rid):
     return out
 
 
+def load_transfer(ev):
+    """Judge-free reference transfer (scratchpad own_vs_cross2.py / own_vs_cross3.py, 2026-11-15/16): {run: metrics} merged from all
+    result files (own_vs_cross3 adds full PSNR and wins over own_vs_cross2 for the same run), plus the reference rows."""
+    out = {}
+    for name in sorted(ev.glob('own_vs_cross2*.json')) + sorted(ev.glob('own_vs_cross3*.json')):
+        if 'refrows' in name.name:
+            continue
+        for k, v in json.loads(name.read_text()).items():
+            if isinstance(v, dict) and 'lpips' in v:
+                out[k] = v
+    ref = ev / 'own_vs_cross3_refrows.json'
+    return out, (json.loads(ref.read_text()) if ref.exists() else {})
+
+
+def transfer(tr, runs, labels):
+    data, ref = tr
+    def row(name, seeds):
+        if not seeds:
+            return None
+        m = lambda q, k: st.mean(x[q][k] for x in seeds) if all(q in x for x in seeds) else None
+        f = lambda v, d: f'{v:.{d}f}' if v is not None else '—'
+        return [name, f(m('lpips', 'own'), 4), f(m('lpips', 'cross'), 4), f(m('lpips', 'gap'), 4), f(m('dists', 'gap'), 4),
+                f(m('lowpass_psnr', 'gap'), 2), f(m('psnr', 'gap'), 2)]
+    rows = []
+    for r in runs:
+        x = row(labels[r['key']], [data[f'{P}{r["key"]}_s{s}'] for s in (0, 1) if f'{P}{r["key"]}_s{s}' in data])
+        if x:
+            rows.append(x)
+    if rows:
+        rows[0][0] = f'<strong>{rows[0][0]}</strong>'
+    for k, nm in (('kernel follower (bank kernel from the reference)', 'Reference: Gaussian kernel copied from the reference'),
+                  ('floor (clean, no degradation)', 'Reference: clean downscale (no following)')):
+        if k in ref:
+            rows.append(row(nm, [ref[k]]))
+    return dict(title='Reference transfer against the true LR (judge-free)',
+                headers=['', 'LPIPS own ↓', 'LPIPS other camera', 'LPIPS gap ↑', 'DISTS gap ↑', 'Low-pass PSNR gap ↑', 'Full PSNR gap ↑'],
+                rows=rows, note='All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat '
+                'references from its own image and 8 from images of other cameras (same HR and noise), every output scored against '
+                'the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera\'s reference '
+                'brings the output closer to the truth. Mean of both seeds; — = not computed.')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--work-dir', default='/scratch/suleymanyildirim22/lr_generation_work')
     ev = Path(ap.parse_args().work_dir) / 'evaluations'
     models, floor, emb = load(ev)
     fol = load_follow(ev)
+    tr = load_transfer(ev)
     ids = {r['key']: f'run{i + 1}' for i, r in enumerate(RUNS)}
     labels = {k: f'Run {v[3:]}' for k, v in ids.items()}
     byk = {r['key']: r for r in RUNS}
@@ -731,6 +797,12 @@ def main():
             tables.append(matching(emb, [r] + ([base] if base and base['emb'] else []), labels))
         if follow_mean(fol, 'plain', r['key'], 'top1') is not None:
             tables.append(following(fol, [r] + ([base] if base and follow_mean(fol, 'plain', base['key'], 'top1') is not None else []), labels))
+        if f'{P}{r["key"]}_s0' in tr[0]:
+            comp = [r]                            # this run, its base, and Run 9 (no degradation loss) when they were tested
+            for x in (base, next((x for x in RUNS if x['key'] == f'{N}_gan002'), None)):
+                if x is not None and x not in comp:
+                    comp.append(x)
+            tables.append(transfer(tr, comp, labels))
         runs.append(dict(id=ids[r['key']], name=labels[r['key']], title=r['title'], summary=r['summary'], purpose=r['purpose'],
                          checkpoint=f'{P}{r["key"]}_s0, _s1', variables=r['vars'],
                          compared_to=(f'{labels[base["key"]]} · {base["title"]}' if base else 'none (baseline)'),

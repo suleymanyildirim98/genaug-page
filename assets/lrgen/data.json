@@ -624,6 +624,21 @@
     "50%",
     "—",
     "—"
+   ],
+   [
+    "<a href=\"#run40\">Run 40</a>",
+    "DEResNet, trainable from the body unfreeze",
+    "64 px, never flat",
+    "A crop never flat",
+    "yes",
+    "0.02 (condition detached)",
+    "0.0304",
+    "0.1059",
+    "37.5",
+    "25%",
+    "54%",
+    "—",
+    "—"
    ]
   ],
   "note": "Own ranked closest / in closest 2 are measured on the hand-cropped references, for the 64 px DEResNet runs only (chance 25% / 50%). Real top-1: the own reference ranked closest among 10 cross references on 186 real test crops (chance 10%), plain DEResNet cosine or delta (content copied from the reference cancels); 64 px reference runs only."
@@ -2803,6 +2818,48 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 9</strong>",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -4324,6 +4381,57 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 14</strong>",
+       "0.0383",
+       "0.0583",
+       "0.0200",
+       "0.0193",
+       "0.87",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -6156,6 +6264,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 20</strong>",
+       "0.0371",
+       "0.0517",
+       "0.0146",
+       "0.0137",
+       "0.63",
+       "—"
+      ],
+      [
+       "Run 14",
+       "0.0383",
+       "0.0583",
+       "0.0200",
+       "0.0193",
+       "0.87",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -6461,6 +6629,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 21</strong>",
+       "0.0422",
+       "0.0574",
+       "0.0152",
+       "0.0145",
+       "0.66",
+       "—"
+      ],
+      [
+       "Run 20",
+       "0.0371",
+       "0.0517",
+       "0.0146",
+       "0.0137",
+       "0.63",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -7986,6 +8214,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 26</strong>",
+       "0.0363",
+       "0.0528",
+       "0.0165",
+       "0.0153",
+       "0.68",
+       "—"
+      ],
+      [
+       "Run 20",
+       "0.0371",
+       "0.0517",
+       "0.0146",
+       "0.0137",
+       "0.63",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -8291,6 +8579,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 27</strong>",
+       "0.0386",
+       "0.0531",
+       "0.0145",
+       "0.0127",
+       "0.58",
+       "—"
+      ],
+      [
+       "Run 20",
+       "0.0371",
+       "0.0517",
+       "0.0146",
+       "0.0137",
+       "0.63",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -8596,6 +8944,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 28</strong>",
+       "0.0436",
+       "0.0577",
+       "0.0142",
+       "0.0126",
+       "0.59",
+       "—"
+      ],
+      [
+       "Run 21",
+       "0.0422",
+       "0.0574",
+       "0.0152",
+       "0.0145",
+       "0.66",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -9204,6 +9612,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 30</strong>",
+       "0.0386",
+       "0.0535",
+       "0.0150",
+       "0.0132",
+       "0.56",
+       "—"
+      ],
+      [
+       "Run 27",
+       "0.0386",
+       "0.0531",
+       "0.0145",
+       "0.0127",
+       "0.58",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -9508,6 +9976,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 31</strong>",
+       "0.0418",
+       "0.0566",
+       "0.0147",
+       "0.0132",
+       "0.55",
+       "—"
+      ],
+      [
+       "Run 28",
+       "0.0436",
+       "0.0577",
+       "0.0142",
+       "0.0126",
+       "0.59",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -9813,6 +10341,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 32</strong>",
+       "0.0331",
+       "0.0501",
+       "0.0171",
+       "0.0150",
+       "0.54",
+       "—"
+      ],
+      [
+       "Run 14",
+       "0.0383",
+       "0.0583",
+       "0.0200",
+       "0.0193",
+       "0.87",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -11347,6 +11935,66 @@
       ]
      ],
      "note": "186 DRealSR x4 test crops; each gets 10 references from 10 other test images and one output per reference (same HR and noise). Top-k: share of outputs whose own reference is among the k most similar of the 10, mean of both seeds and 5 noise draws (std over draws 0.1-0.5 points). Plain: DEResNet cosine between output and reference crop; copying the reference's texture raises it. Delta: cosine between the output's change from its clean input, n(J(o)) - n(J(x)), and the reference's change from its own clean HR, n(J(r)) - n(J(h)); content copied from the reference cancels."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 37</strong>",
+       "0.0337",
+       "0.0516",
+       "0.0179",
+       "0.0154",
+       "0.57",
+       "—"
+      ],
+      [
+       "Run 32",
+       "0.0331",
+       "0.0501",
+       "0.0171",
+       "0.0150",
+       "0.54",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -11614,6 +12262,66 @@
       ]
      ],
      "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 38</strong>",
+       "0.0335",
+       "0.0515",
+       "0.0180",
+       "0.0151",
+       "0.52",
+       "0.67"
+      ],
+      [
+       "Run 37",
+       "0.0337",
+       "0.0516",
+       "0.0179",
+       "0.0154",
+       "0.57",
+       "—"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -11881,6 +12589,57 @@
       ]
      ],
      "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 39</strong>",
+       "0.0332",
+       "0.0507",
+       "0.0175",
+       "0.0147",
+       "0.50",
+       "0.65"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
     }
    ],
    "visuals": {
@@ -11917,6 +12676,334 @@
      },
      {
       "src": "assets/lrgen/img/run39/hand_s1.jpg",
+      "caption": "Seed 1"
+     }
+    ],
+    "sweep_note": "Seed 0. Six DRealSR ×4 test photos (the most textured of 16 random crops each). Each figure keeps the HR crop and the noise fixed and changes only the reference: its own real LR, then cross-capture references (Canon_40, panasonic_187). Rows: reference, generated native 64 px LR (area-downscaled output, nearest-neighbour zoom; the first column is the real native LR), its centre, and the difference to the matched output ×4. The same photos and references are used for every run, so tabs can be compared directly.",
+    "hand_note": "Rows: the three hand-cropped HR inputs (fixed noise per row). Columns: the four hand-cropped 64 px references (lowdeg, lowdeg2, highdeg, highdeg2). Cells: the generated native 64 px LR, nearest-neighbour zoom."
+   }
+  },
+  {
+   "id": "run40",
+   "name": "Run 40",
+   "title": "Run 39 with the DEResNet condition encoder fine-tuned (learning rate 3e-6 from 10k)",
+   "summary": "Identical to Run 39 (same seeds, data and schedule; training losses match to every logged digit up to 10k), except that the condition encoder joins stage 2 and is trained by the reconstruction, perceptual and GAN losses at a learning rate 3x below the body's. DEResNet has no normalisation layers. The fine-tuned encoder is saved with each checkpoint and used by every evaluation.",
+   "purpose": "The degradation losses of Runs 37 and 38 stalled because the frozen DEResNet limits how much degradation information reaches the generator; let the main losses adapt the encoder instead.",
+   "checkpoint": "DRealSR_x4_S_nref64_deresnet_nlpips_gan002_nonflat_enc3e6_s0, _s1",
+   "variables": [
+    [
+     "Encoder",
+     "DEResNet, trainable from the body unfreeze (10k), lr 3e-6 with the body's warmup and cosine decay"
+    ],
+    [
+     "Reference size",
+     "64 px, never flat"
+    ],
+    [
+     "Training input",
+     "A crop never flat"
+    ],
+    [
+     "Perceptual loss",
+     "native LPIPS 2.0"
+    ],
+    [
+     "Discriminator",
+     "native, weight 0.02 (condition detached)"
+    ],
+    [
+     "Degradation loss",
+     "none"
+    ]
+   ],
+   "compared_to": "Run 39 · Run 9 with never-flat training crops and references (no degradation loss)",
+   "findings": [
+    "Best quality of all runs: FID 37.5, LPIPS 0.0304, DISTS 0.106 (Run 39: 38.3, 0.0335, 0.110; Run 9: 37.9, 0.0336, 0.109); diversity 0.0181.",
+    "Judge-free transfer test on the whole test set (1,488 non-flat crops, 4 own-image and 8 other-camera references): LPIPS gap 0.0262 (seeds 0.0269, 0.0256), up from 0.0175 for Run 39 and 0.0180 for Run 38; DISTS gap 0.0232 (Run 39: 0.0147); low-pass PSNR gap 0.79 dB and full PSNR gap 1.00 dB (Run 39: 0.50, 0.65). Own-reference LPIPS 0.0299 (Run 39: 0.0332).",
+    "Hand-crop gap with the original DEResNet as judge 0.061, own reference in the closest 2 54% (Run 39: 0.054, 50%): the gain is in the true LR, not in the frozen judge's space.",
+    "Not yet checked: whether part of the gain is scene information passed through the encoder (references come from the same image); a rotated / flipped reference test would separate it."
+   ],
+   "verdict": "Largest gain of the series in both quality and reference following: the frozen condition encoder was the bottleneck. New best, pending the scene-leakage check.",
+   "tables": [
+    {
+     "title": "Quantitative metrics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 39 (mean)",
+      "Change"
+     ],
+     "rows": [
+      [
+       "LPIPS ↓",
+       "0.0300",
+       "0.0307",
+       "<strong>0.0304</strong>",
+       "0.0335",
+       "<span class=\"up\">-0.0031</span>"
+      ],
+      [
+       "DISTS ↓",
+       "0.1049",
+       "0.1069",
+       "<strong>0.1059</strong>",
+       "0.1099",
+       "<span class=\"up\">-0.0040</span>"
+      ],
+      [
+       "FID ↓",
+       "37.49",
+       "37.50",
+       "<strong>37.49</strong>",
+       "38.33",
+       "<span class=\"up\">-0.84</span>"
+      ],
+      [
+       "PSNR (dB)",
+       "32.64",
+       "32.39",
+       "<strong>32.52</strong>",
+       "32.51",
+       "<span>+0.01</span>"
+      ]
+     ],
+     "note": "Native 64 px output against the real LR of the same crop. Lower LPIPS, DISTS and FID is better; FID varies by up to ~4 points between seeds. PSNR rewards smooth outputs and is not used to select runs. Change: green = better than the comparison run, red = worse."
+    },
+    {
+     "title": "Realism statistics",
+     "headers": [
+      "Metric",
+      "Seed 0",
+      "Seed 1",
+      "Mean",
+      "Run 39 (mean)",
+      "Change",
+      "Real LR round trip"
+     ],
+     "rows": [
+      [
+       "Noise ratio",
+       "0.931",
+       "0.962",
+       "<strong>0.947</strong>",
+       "0.914",
+       "<span class=\"up\">+0.033</span>",
+       "0.92"
+      ],
+      [
+       "Detail ratio",
+       "0.951",
+       "1.006",
+       "<strong>0.979</strong>",
+       "0.940",
+       "<span class=\"up\">+0.039</span>",
+       "0.94"
+      ],
+      [
+       "HF power ratio",
+       "1.024",
+       "1.058",
+       "<strong>1.041</strong>",
+       "1.068",
+       "<span class=\"up\">-0.027</span>",
+       "0.85"
+      ],
+      [
+       "Saturation ratio",
+       "0.972",
+       "1.009",
+       "<strong>0.991</strong>",
+       "0.966",
+       "<span class=\"up\">+0.024</span>",
+       "1.00"
+      ],
+      [
+       "Noise camera slope",
+       "0.831",
+       "0.869",
+       "<strong>0.850</strong>",
+       "0.774",
+       "<span class=\"up\">+0.076</span>",
+       "0.92"
+      ],
+      [
+       "Detail camera slope",
+       "0.991",
+       "1.042",
+       "<strong>1.016</strong>",
+       "0.987",
+       "<span class=\"down\">+0.029</span>",
+       "0.94"
+      ],
+      [
+       "HF camera slope",
+       "0.603",
+       "0.661",
+       "<strong>0.632</strong>",
+       "0.616",
+       "<span class=\"up\">+0.016</span>",
+       "0.85"
+      ],
+      [
+       "Noise use (z_std ÷ real noise) ↑",
+       "0.490",
+       "0.521",
+       "<strong>0.506</strong>",
+       "0.489",
+       "<span class=\"up\">+0.017</span>",
+       "—"
+      ],
+      [
+       "Diversity (LPIPS between noise draws) ↑",
+       "0.0169",
+       "0.0192",
+       "<strong>0.0181</strong>",
+       "0.0179",
+       "<span class=\"up\">+0.0002</span>",
+       "—"
+      ]
+     ],
+     "note": "Ratios are generated ÷ real, averaged over the six cameras (1 = real). The last column is the score of the real LR itself sent through the same measurement, so it is the best reachable. Camera slopes: how much of the real difference between cameras is reproduced (1 = all). Noise use: how much the output changes with the noise input, relative to the real noise level. Change is green when closer to 1 (ratios and slopes) or higher (noise use, diversity)."
+    },
+    {
+     "title": "Degradation matching (hand-cropped references, DEResNet cosine similarity)",
+     "headers": [
+      "",
+      "Output vs output",
+      "Output vs own reference",
+      "Output vs other references",
+      "Gap ↑",
+      "Own ranked closest ↑",
+      "Own in closest 2 ↑"
+     ],
+     "rows": [
+      [
+       "Hand-cropped references (target)",
+       "0.761",
+       "—",
+       "—",
+       "—",
+       "—",
+       "—"
+      ],
+      [
+       "<strong>Run 40</strong>",
+       "0.928",
+       "0.844",
+       "0.783",
+       "+0.061",
+       "25%",
+       "54%"
+      ],
+      [
+       "Run 39",
+       "0.936",
+       "0.838",
+       "0.784",
+       "+0.054",
+       "25%",
+       "50%"
+      ]
+     ],
+     "note": "3 HR crops × 4 references × 2 seeds, native 64 px, DEResNet embeddings. Output vs output should be near the reference-vs-reference value (the target row). Own ranked closest: chance is 25%; own in closest 2: chance is 50%; lowdeg2 and highdeg2 are near twins (0.98), so 100% is not reachable."
+    },
+    {
+     "title": "Reference transfer against the true LR (judge-free)",
+     "headers": [
+      "",
+      "LPIPS own ↓",
+      "LPIPS other camera",
+      "LPIPS gap ↑",
+      "DISTS gap ↑",
+      "Low-pass PSNR gap ↑",
+      "Full PSNR gap ↑"
+     ],
+     "rows": [
+      [
+       "<strong>Run 40</strong>",
+       "0.0299",
+       "0.0561",
+       "0.0262",
+       "0.0232",
+       "0.79",
+       "1.00"
+      ],
+      [
+       "Run 39",
+       "0.0332",
+       "0.0507",
+       "0.0175",
+       "0.0147",
+       "0.50",
+       "0.65"
+      ],
+      [
+       "Run 9",
+       "0.0338",
+       "0.0495",
+       "0.0157",
+       "0.0133",
+       "0.48",
+       "—"
+      ],
+      [
+       "Reference: Gaussian kernel copied from the reference",
+       "0.0716",
+       "0.0817",
+       "0.0101",
+       "0.0064",
+       "0.15",
+       "0.31"
+      ],
+      [
+       "Reference: clean downscale (no following)",
+       "0.1248",
+       "0.1248",
+       "0.0000",
+       "0.0000",
+       "0.00",
+       "0.00"
+      ]
+     ],
+     "note": "All 93 DRealSR x4 test images, 1,488 non-flat 64 px crops; each generated with 4 non-overlapping, non-flat references from its own image and 8 from images of other cameras (same HR and noise), every output scored against the true LR. Gap = other-camera minus own (PSNR: own minus other-camera): how much the right camera's reference brings the output closer to the truth. Mean of both seeds; — = not computed."
+    }
+   ],
+   "visuals": {
+    "sweep": [
+     {
+      "src": "assets/lrgen/img/run40/sweep_0.jpg",
+      "caption": "panasonic_158"
+     },
+     {
+      "src": "assets/lrgen/img/run40/sweep_1.jpg",
+      "caption": "DSC_1241"
+     },
+     {
+      "src": "assets/lrgen/img/run40/sweep_2.jpg",
+      "caption": "P1140279"
+     },
+     {
+      "src": "assets/lrgen/img/run40/sweep_3.jpg",
+      "caption": "Canon_14"
+     },
+     {
+      "src": "assets/lrgen/img/run40/sweep_4.jpg",
+      "caption": "panasonic_197"
+     },
+     {
+      "src": "assets/lrgen/img/run40/sweep_5.jpg",
+      "caption": "panasonic_145"
+     }
+    ],
+    "hand": [
+     {
+      "src": "assets/lrgen/img/run40/hand_s0.jpg",
+      "caption": "Seed 0"
+     },
+     {
+      "src": "assets/lrgen/img/run40/hand_s1.jpg",
       "caption": "Seed 1"
      }
     ],
