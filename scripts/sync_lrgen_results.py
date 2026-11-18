@@ -28,7 +28,7 @@ REALISM = ['DRealSR_x4_S_native_metrics_realism', 'DRealSR_x4_S_native_metrics_d
            'DRealSR_x4_S_native_metrics_nce_realism', 'DRealSR_x4_S_native_metrics_nce_weights_realism',
            'DRealSR_x4_S_native_metrics_nce01_gan_realism', 'DRealSR_x4_S_native_metrics_x5nce_s0_realism',
            'DRealSR_x4_S_native_metrics_x5nce_s1_realism'] + [f'DRealSR_x4_S_native_metrics_{t}_s{s}_realism'
-                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch', 'colpair', 'nonflat', 'enc3e6') for s in (0, 1)]
+                                                            for t in ('ownonly', 'capmean', 'hrneg', 'hrneg005', 'delta', 'delta02', 'delta05', 'delta02b8', 'dsynrec', 'synrec', 'dsynnce', 'dcos01', 'dcos02', 'dcos05', 'dcossyn', 'dcos02syn', 'ownsyn', 'hyb01', 'hyb02', 'crit01', 'crit02', 'branch', 'colpair', 'nonflat', 'enc3e6', 'samecol', 'samecolenc', 'lplpips') for s in (0, 1)]
 HAND = {64: 'hand_crops_nref64_last'}
 N = 'nref64_deresnet_nlpips'
 
@@ -567,6 +567,63 @@ RUNS = [
                    'the same image); a rotated / flipped reference test would separate it.'],
          verdict='Largest gain of the series in both quality and reference following: the frozen condition encoder was the bottleneck. '
                  'New best, pending the scene-leakage check.'),
+    dict(key=f'{N}_nce01_gan002_colpair_samecol', size=64, emb='', base=f'{N}_nce01_gan002_colpair',
+         title='Run 38 without the different-content column (same-content column only)',
+         vars=[['Encoder', 'DEResNet (frozen)'], ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'],
+               ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'InfoNCE, weight 0.1, tau 0.1, plain normalised DEResNet embeddings, same-content column only: '
+                                    'real LR y_A (positive) against o_cross (negative)']],
+         summary='Identical to Run 38 except that the different-content column (weight 0.25 in Run 38) is removed. The loss keeps one '
+                 '2-way softmax: anchor o_A = G(x_A | own reference), positive the real LR y_A, negative o_cross = G_EMA(x_A | reference '
+                 'from another camera), same noise, no gradient through o_cross.',
+         purpose='Check whether the different-content column contributes anything to Run 38.',
+         findings=['Same-content top-1 in training rose from about 0.40 to 0.80 (Run 38: 0.54 to 0.74).',
+                   'Judge-free transfer test (1,488 non-flat crops): LPIPS gap 0.0178, own-reference LPIPS 0.0333, own reference better '
+                   'in 74% (Run 38: 0.0180, 0.0335, 74%).',
+                   'Quality as Run 38: FID 38.5, LPIPS 0.0337, DISTS 0.110; diversity 0.0182.',
+                   'Full DRealSR test set (paper protocol): LPIPS 0.0323, DISTS 0.110, FID 4.75 (Run 38: 0.0326, 0.111, 5.15); RealSR '
+                   '(cross-dataset): LPIPS 0.0484, FID 7.30 (Run 38: 0.0499, 7.37).'],
+         verdict='No change from Run 38: the different-content column contributed nothing.'),
+    dict(key=f'{N}_nce01_gan002_colpair_samecol_enc3e6', size=64, emb='',
+         base=f'{N}_nce01_gan002_colpair_samecol',
+         title='Run 41 with the condition encoder fine-tuned as in Run 40 (judge: frozen copy of the original DEResNet)',
+         vars=[['Encoder', 'DEResNet, trainable from the body unfreeze (10k), lr 3e-6 (as Run 40)'],
+               ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'], ['Perceptual loss', 'native LPIPS 2.0'],
+               ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'as Run 41; embeddings from a frozen copy of the original DEResNet (the judge), separate from '
+                                    'the trained encoder']],
+         summary='Run 41\'s same-content column loss combined with Run 40\'s encoder fine-tuning. The judge that embeds o_A, y_A and '
+                 'o_cross is a frozen copy of the original DEResNet, so the trained encoder cannot move the loss\'s target; it receives '
+                 'the degradation loss only through the condition path.',
+         purpose='Test whether the degradation loss adds to the gain of a fine-tuned encoder.',
+         findings=['Same-content top-1 in training rose from about 0.45 to 0.90.',
+                   'Judge-free transfer test: LPIPS gap 0.0268, own-reference LPIPS 0.0300, own reference better in 83% (Run 40: 0.0263, '
+                   '0.0299, 82%).',
+                   'Quality as Run 40: FID 37.2, LPIPS 0.0302, DISTS 0.106 (Run 40: 37.5, 0.0304, 0.106); diversity 0.0172.',
+                   'Full DRealSR test set (paper protocol): LPIPS 0.0297, DISTS 0.107, FID 4.52 (Run 40: 0.0296, 0.107, 4.58); RealSR: '
+                   'LPIPS 0.0433, DISTS 0.119, FID 7.20 (Run 40: 0.0452, 0.120, 7.37).'],
+         verdict='Ties Run 40 on DRealSR and is slightly better on RealSR: the degradation loss adds little once the encoder is '
+                 'fine-tuned. Run 40 stays the base.'),
+    dict(key=f'{N}_nce01_gan002_colpair_samecol_enc3e6_lplpips', size=64, emb='',
+         base=f'{N}_nce01_gan002_colpair_samecol_enc3e6',
+         title='Run 42 with the DEResNet distance replaced by low-pass L1 + LPIPS',
+         vars=[['Encoder', 'DEResNet, trainable from 10k, lr 3e-6'], ['Reference size', '64 px, never flat'],
+               ['Training input', 'A crop never flat'], ['Perceptual loss', 'native LPIPS 2.0'], ['Discriminator', 'native, weight 0.02'],
+               ['Degradation loss', 'weight 0.1, scores -D/tau with tau 0.5; D = (low-pass L1 / 0.0157 + native LPIPS / 0.0218) / 2, '
+                                    'Gaussian low-pass sigma 1; real LR y_A positive, o_cross negative (detached)']],
+         summary='Same as Run 42, but the distance in the same-content softmax is image-space: the mean of a low-pass (Gaussian, sigma 1) '
+                 'L1 and native LPIPS, each normalised by its typical value. No judge network.',
+         purpose='Replace the frozen DEResNet judge, which limited Runs 37, 38 and 42, with a distance measured directly on the images.',
+         findings=['Calibration on Run 40 before training: the real LR is closer to o_A than o_cross is in only 36% of crops (generated '
+                   'outputs share noise and alignment; the real LR has its own noise and misalignment), so the loss pushes o_A away '
+                   'from o_cross on most crops.',
+                   'Same-content top-1 in training rose from about 0.10 to 0.60-0.65.',
+                   'Judge-free transfer test: LPIPS gap 0.0328, the largest of all runs, but own-reference LPIPS worsened to 0.0351 '
+                   '(Run 42: 0.0268, 0.0300); own reference better in 81%.',
+                   'Quality worse: FID 39.7, LPIPS 0.0365, DISTS 0.113; diversity 0.0192. Full DRealSR test set: LPIPS 0.0352, FID '
+                   '5.26; RealSR: LPIPS 0.0527, FID 8.78 (Run 42: 0.0297, 4.52; 0.0433, 7.20).'],
+         verdict='Overshoot: the larger gap comes from moving away from o_cross rather than closer to the real LR, and every quality '
+                 'metric gets worse. Not adopted.'),
 ]
 
 
