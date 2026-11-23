@@ -951,8 +951,11 @@ def main():
         if follow_mean(fol, 'plain', r['key'], 'top1') is not None:
             tables.append(following(fol, [r] + ([base] if base and follow_mean(fol, 'plain', base['key'], 'top1') is not None else []), labels))
         if f'{P}{r["key"]}_s0' in tr[0]:
-            comp = [r]                            # this run, its base, and Run 9 (no degradation loss) when they were tested
-            for x in (base, next((x for x in RUNS if x['key'] == f'{N}_gan002'), None)):
+            comp = [r]                            # this run, its base, Run 40 (current best) and Run 9 (no degradation loss) when tested
+            best = next((x for x in RUNS if x['key'] == f'{N}_gan002_nonflat_enc3e6'), None)   # Run 40, the current best, for later runs
+            if best is not None and RUNS.index(r) < RUNS.index(best):
+                best = None
+            for x in (base, best, next((x for x in RUNS if x['key'] == f'{N}_gan002'), None)):
                 if x is not None and x not in comp:
                     comp.append(x)
             tables.append(transfer(tr, comp, labels))
