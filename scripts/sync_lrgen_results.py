@@ -563,10 +563,15 @@ RUNS = [
                    '(Run 39: 0.0332).',
                    'Hand-crop gap with the original DEResNet as judge 0.061, own reference in the closest 2 54% (Run 39: 0.054, 50%): '
                    'the gain is in the true LR, not in the frozen judge\'s space.',
-                   'Not yet checked: whether part of the gain is scene information passed through the encoder (references come from '
-                   'the same image); a rotated / flipped reference test would separate it.'],
+                   'Scene-leakage check (1,488 crops): LPIPS with the own reference 0.0299, a reference from another image of the same '
+                   'camera 0.0349, another camera 0.0562, the own reference rotated 0.0302. The own vs same-camera gap (0.005) is the '
+                   'same as Run 39\'s (0.0332 / 0.0379), so the fine-tuned encoder passes no extra scene information.',
+                   'Full test sets (paper protocol, see the benchmark tables): DRealSR LPIPS 0.0296, DISTS 0.107, FID 4.58 (BSRGAN-light: '
+                   '0.101, 0.159, 10.66); RealSR (cross-dataset) LPIPS 0.0452, FID 7.37 (BSRGAN-light: 0.109, 12.74).',
+                   'Out of domain (200 DIV2K / Flickr2K HR images, references from DRealSR): FID 53.1 (Run 39: 53.5, BSRGAN-light: 63.6, '
+                   'bicubic: 76.1, Real-ESRGAN: 92.1).'],
          verdict='Largest gain of the series in both quality and reference following: the frozen condition encoder was the bottleneck. '
-                 'New best, pending the scene-leakage check.'),
+                 'New best; the scene-leakage check shows no extra leakage.'),
     dict(key=f'{N}_nce01_gan002_colpair_samecol', size=64, emb='', base=f'{N}_nce01_gan002_colpair',
          title='Run 38 without the different-content column (same-content column only)',
          vars=[['Encoder', 'DEResNet (frozen)'], ['Reference size', '64 px, never flat'], ['Training input', 'A crop never flat'],
@@ -835,6 +840,96 @@ def transfer(tr, runs, labels):
                 'brings the output closer to the truth. Mean of both seeds; — = not computed.')
 
 
+PAPER_BASE = [('bicubic', 'Bicubic ×1/4'), ('realesrgan', 'Real-ESRGAN degradation pipeline'), ('bsrgan', 'BSRGAN-light degradation pipeline')]
+
+
+def load_paper(ev):
+    """Paper-protocol evaluation (scratchpad paper_eval.py): {dataset: {row: metrics}} from all paper_eval_<dataset>_*.json
+    (synthetic-pipeline rows other than the three baselines are not shown)."""
+    out = {}
+    for D in ('drealsr', 'realsr'):
+        out[D] = {}
+        for f in sorted(ev.glob(f'paper_eval_{D}_*.json')):
+            if f.stem.endswith('_v7'):
+                continue
+            for k, v in json.loads(f.read_text()).items():
+                if isinstance(v, dict) and 'lpips' in v:
+                    out[D].setdefault(k, v)
+    return out
+
+
+def paper(pe, run, labels):
+    """Benchmark tables: the three baselines and every run up to this one with paper-protocol results."""
+    upto = RUNS[:RUNS.index(run) + 1]
+    tables = []
+    for D, title, note in (('drealsr', 'Benchmark: DRealSR ×4 test set',
+                            'All 93 DRealSR ×4 test images, every 64 px crop (stride 48, edges included). Runs: one random non-flat 128 px '
+                            'reference from the same image per crop, last checkpoint, bf16, mean of both seeds. Baselines see only the HR. '
+                            'Metrics against the real LR of the same crop; FID over all crops.'),
+                           ('realsr', 'Benchmark: RealSR V3 ×4 (cross-dataset)',
+                            'All of RealSR V3 ×4 (Canon and Nikon, train + val + test), never seen in training; same protocol as DRealSR.')):
+        d = pe.get(D, {})
+        rows = []
+        f = lambda m: [f'{m["psnr"]:.2f}', f'{m["ssim"]:.3f}', f'{m["lpips"]:.4f}', f'{m["dists"]:.4f}', f'{m["fid"]:.2f}', f'{m["clip"]:.3f}']
+        for k, nm in PAPER_BASE:
+            if k in d:
+                rows.append([nm] + f(d[k]))
+        for r in upto:
+            ss = [d[f'{P}{r["key"]}_s{s}'] for s in (0, 1) if f'{P}{r["key"]}_s{s}' in d]
+            if not ss:
+                continue
+            m = {q: st.mean(x[q] for x in ss) for q in ('psnr', 'ssim', 'lpips', 'dists', 'fid', 'clip')}
+            nm = labels[r['key']]
+            rows.append([f'<strong>{nm}</strong>' if r is run else nm] + f(m))
+        if any(labels[r['key']] in row[0] for row in rows for r in [run]):
+            tables.append(dict(title=title, headers=['', 'PSNR', 'SSIM ↑', 'LPIPS ↓', 'DISTS ↓', 'FID ↓', 'CLIP ↑'], rows=rows,
+                               note=note + ' PSNR is not used to select runs.'))
+    return tables
+
+
+def ood_table(ev, run, labels):
+    f = ev / 'ood_eval.json'
+    if not f.exists():
+        return []
+    d = json.loads(f.read_text())
+    rows = []
+    for k, nm in PAPER_BASE:
+        if k in d:
+            rows.append([nm, f'{d[k]["div2k_flickr2k"]["fid"]:.1f}', f'{d[k]["drealsr_hr_control"]["fid"]:.1f}'])
+    for r in RUNS:
+        ss = [d[f'{P}{r["key"]}_s{s}'] for s in (0, 1) if f'{P}{r["key"]}_s{s}' in d]
+        if ss:
+            nm = labels[r['key']]
+            rows.append([f'<strong>{nm}</strong>' if r is run else nm] + [f'{st.mean(x[q]["fid"] for x in ss):.1f}'
+                                                                            for q in ('div2k_flickr2k', 'drealsr_hr_control')])
+    return [dict(title='Out of domain: DIV2K / Flickr2K HR', headers=['', 'FID ↓ (DIV2K / Flickr2K)', 'FID ↓ (DRealSR HR control)'],
+                 rows=rows, note='200 DIV2K / Flickr2K HR images (no real LR exists); runs use real DRealSR references. FID of the '
+                 'generated LRs against real DRealSR LRs; the control applies the same protocol to DRealSR HR. Mean of both seeds.')]
+
+
+FIGURES = {   # run key -> [(file in WORK_DIR/evaluations/figures, caption)]
+    f'{N}_gan002_nonflat_enc3e6': [
+        ('ood_visual.png', 'Out of domain: DIV2K / Flickr2K crops. Columns: HR, clean downscale, bicubic, Real-ESRGAN, BSRGAN, then '
+                           'Runs 39 and 40 with a Canon and a Sony (DSC) reference.'),
+        ('ladder_runs.png', 'Two DRealSR training captures (P1160574, IMG_119): clean downscale, real LR, Runs 38 / 39 / 40 '
+                            '(own-capture reference); second row |error| ×4. Titles: mean PSNR / LPIPS over 4 references × 2 noise draws.')],
+    f'{N}_nce01_gan002_colpair_samecol_enc3e6_lplpips': [
+        ('ladder_runs_r38_43.png', 'Two DRealSR training captures: clean downscale, real LR, Runs 38-43 (own-capture reference); '
+                                   'second row |error| ×4. Titles: mean PSNR / LPIPS over 4 references × 2 noise draws.'),
+        ('ladder_base.png', 'Capture P1160574: real LR, Runs 40 / 42 / 43, then the HR-only baselines Real-ESRGAN, BSRGAN and '
+                            'bicubic (8 random draws each); second row |error| ×4.')],
+}
+
+
+def figures(ev, run, rid):
+    items = [(ev / 'figures' / fn, c) for fn, c in FIGURES.get(run['key'], []) if (ev / 'figures' / fn).exists()]
+    if not items:
+        return []
+    rows = [[f'<a href="{src}" target="_blank" rel="noopener"><img src="{src}" alt="{c}" loading="lazy" style="width:100%;max-width:1400px"></a>'
+             f'<br>{c}'] for src, c in ((save(f, OUT / 'img' / rid / f'fig_{f.stem}.jpg', 1800), c) for f, c in items)]
+    return [dict(title='Comparison figures', headers=[''], rows=rows, note='Click a figure to open it at full size.')]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--work-dir', default='/scratch/suleymanyildirim22/lr_generation_work')
@@ -842,6 +937,7 @@ def main():
     models, floor, emb = load(ev)
     fol = load_follow(ev)
     tr = load_transfer(ev)
+    pe = load_paper(ev)
     ids = {r['key']: f'run{i + 1}' for i, r in enumerate(RUNS)}
     labels = {k: f'Run {v[3:]}' for k, v in ids.items()}
     byk = {r['key']: r for r in RUNS}
@@ -860,6 +956,10 @@ def main():
                 if x is not None and x not in comp:
                     comp.append(x)
             tables.append(transfer(tr, comp, labels))
+        tables += paper(pe, r, labels)
+        if r['key'] == f'{N}_gan002_nonflat_enc3e6':
+            tables += ood_table(ev, r, labels)
+        tables += figures(ev, r, ids[r['key']])
         runs.append(dict(id=ids[r['key']], name=labels[r['key']], title=r['title'], summary=r['summary'], purpose=r['purpose'],
                          checkpoint=f'{P}{r["key"]}_s0, _s1', variables=r['vars'],
                          compared_to=(f'{labels[base["key"]]} · {base["title"]}' if base else 'none (baseline)'),
